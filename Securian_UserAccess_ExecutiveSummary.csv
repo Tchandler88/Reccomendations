@@ -1,0 +1,31 @@
+AEM USER GROUP AUDIT REPORT — Securian Financial,Unnamed: 1,Unnamed: 2,Unnamed: 3,_section,Account Classification Breakdown,Unnamed: 4
+"Source: User_group.xlsx | Analyzed: March 2026 | Total Records: 1,008",,,,Executive Summary,,
+,,,,Executive Summary,,
+Metric,Value,Notes / Risk Flag,,Executive Summary,,
+Total Rows in Export,1008,,,Executive Summary,,
+Duplicate Rows,0,✅ No exact row duplicates,,Executive Summary,,
+Duplicate User IDs,0,✅ All User IDs unique,,Executive Summary,,
+Standard Named Users,734,Users with First + Last Name,,Executive Summary,,
+Unnamed / Service Accounts,274,⚠ No First/Last Name — review,,Executive Summary,,
+Email-Style User IDs (wf- / IMS),268,Workfront & Adobe IMS accounts,,Executive Summary,,
+Users with ONLY 'everyone' group,443,44% — no AEM-specific access,,Executive Summary,,
+Users with 10+ Group Memberships,38,⚠ Review for least-privilege,,Executive Summary,,
+MAX groups on a single user,127,Daniel Novack (CP560),,Executive Summary,,
+Avg Groups per User,3.05,,,Executive Summary,,
+Unique Group Names,275,Across all users,,Executive Summary,,
+Users Never Modified (no Mod Date),958 (95%),⚠ Could indicate stale accounts,Last modified date is NOT last login,Executive Summary,,
+Duplicate Persons (same name),20 pairs,"⚠ Same name, different User IDs",,Executive Summary,,
+Permission Conflicts (Author+RO),15 pairs,⚠ Same domain Author + ReadOnly,,Executive Summary,,
+High-Privilege Users (user-admin),6,⚠ Review CoreTeam/admin accounts,,Executive Summary,,
+External Domain Accounts (wf-),~15 external emails,⚠ Non-securian.com addresses,,Executive Summary,,
+Date Range (Created),Apr 2018 – Feb 2026,,,Executive Summary,,
+Workfront Linked Users,260,wf-workfront-users group,,Executive Summary,,
+,Count,% of Total,ID Format / Pattern,Account Types,Account Type,Notes
+,734,,Short alphanumeric (e.g. CP560),Account Types,Standard Named Users,Regular employees w/ first+last name
+,260,,wf-firstname.lastname@domain,Account Types,Workfront Sync Accounts (wf-),Shadow records for WF integration; read-only Workfront group
+,10,,Email address,Account Types,Adobe IMS / Asset Link Users,Adobe Creative Cloud bridge accounts
+,10,,Descriptive (e.g. fileUploadUser),Account Types,Service / System Accounts,"admin, anonymous, truform_migration, etc."
+,3,,"testID, testadobe, bradtest, timtest",Account Types,Test Accounts,⚠ Should be removed from prod
+,1,,"dale, dale_noSSO",Account Types,Named Legacy / NoSSO Accounts,⚠ Dale Kimmes has a parallel non-SSO account
+,1,,Long hash string,Account Types,Hash / Token-Style IDs,wf-425e2c05... style; likely automated WF entry
+,1,,clark-kent,Account Types,clark-kent,⚠ Suspicious account; has 'administrators' group

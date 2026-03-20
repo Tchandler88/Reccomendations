@@ -1,0 +1,139 @@
+Unnamed: 0,Unnamed: 1,PHASE 2: METADATA SCHEMA,Unnamed: 3,Unnamed: 4,Unnamed: 5,Unnamed: 6,Unnamed: 7,Unnamed: 8
+Base Tab,Sub Category,Field Name,Label,Data Type,Is Mandatory,Is System-Managed,Namespace,Allowed Values
+Basic,Metadata,dc:title,Title,String,False,False,dc,Field='dc:title' DataType='String'. Free Text
+Basic,Metadata,dc:description,Description,String,False,False,dc,Field='dc:description' DataType='String'. Free Text
+,,dc:format,Type,String,False,True,dc,Field='dc:format' DataType='String'. Free Text
+Basic,Metadata,wcmLanguage,Language,String,False,False,,Field='wcmLanguage' DataType='String'. Free Text
+Basic,Metadata,cq:tags,Tags,String,False,False,cq,Field='cq:tags' DataType='String'. Free Text
+Basic,Metadata,cq:tags-security,Security Tags,String,False,False,cq,Field='cq:tags-security' DataType='String'. Free Text
+Basic,Metadata,cq:tags-sitesection,Site/Section Tags,String,False,False,cq,Field='cq:tags-sitesection' DataType='String'. Free Text
+,,predictedTags,Smart Tags,String,False,True,,Field='predictedTags' DataType='String'. Free Text
+Basic,Metadata,jcr:created,Created,Date,False,True,jcr,Field='jcr:created' DataType='Date'. Free Text
+Basic,Metadata,xmp:CreatorTool,Creator Tool,String,False,False,xmp,Field='xmp:CreatorTool' DataType='String'. Free Text
+Basic,Metadata,dam:status,Review Status,String,False,True,dam,Field='dam:status' DataType='String'. Free Text
+Basic,Metadata,wcmApiClient,API Client,String,False,True,,Field='wcmApiClient' DataType='String'. Free Text
+Basic,Schedule (de)activation,onTime,On Time,Date,False,False,,Field='onTime' DataType='Date'. Free Text
+Basic,Schedule (de)activation,offTime,Off Time,Date,False,True,,Field='offTime' DataType='Date'. Free Text
+Advanced,License,dc:creator,Creator,String,False,False,dc,Field='dc:creator' DataType='String'. Free Text
+Advanced,License,dc:contributor,Contributor,String,False,False,dc,Field='dc:contributor' DataType='String'. Free Text
+Advanced,License,dc:rights,Copyright,String,False,False,dc,Field='dc:rights' DataType='String'. Free Text
+Advanced,License,xmpRights:Owner,Copyright Owner,String,False,False,xmpRights,Field='xmpRights:Owner' DataType='String'. Free Text
+Advanced,License,xmpRights:UsageTerms,Usage Terms,String,False,False,xmpRights,Field='xmpRights:UsageTerms' DataType='String'. Free Text
+Advanced,License,prism:expirationDate,Expires,Date,False,False,prism,Field='prism:expirationDate' DataType='Date'. Free Text
+Advanced,License,wcmFuturePublishDate,Workfront Future Publish Date,Date,False,True,,Field='wcmFuturePublishDate' DataType='Date'. Free Text
+Advanced,License,jcr:uuid,ID,String,False,True,jcr,Field='jcr:uuid' DataType='String'. Free Text
+Advanced,License,dam:search_promote,Promote Search,String,False,False,dam,Field='dam:search_promote' DataType='String'. Free Text
+Securian,Asset Info,dam:relativePath,Asset Name,String,False,True,dam,Field='dam:relativePath' DataType='String'. Free Text
+Securian,Asset Info,colorSpace,Color Space,String,False,True,,Field='colorSpace' DataType='String'. Free Text
+Securian,Asset Info,friendlyTitle,Asset Display Name,String,False,False,,Field='friendlyTitle' DataType='String'. Free Text
+,,dc:subject,,String,False,False,dc,Field='dc:subject' DataType='String'. Free Text
+Securian,Asset Info,wcmAltText,Alt Text,String,False,False,,Field='wcmAltText' DataType='String'. Free Text
+Securian,Asset Info,wcmCaption,Caption,String,False,False,,Field='wcmCaption' DataType='String'. Free Text
+Securian,Asset Info,original,Date of First Use,Date,False,False,,Field='original' DataType='Date'. Free Text
+Securian,Asset Info,revised,Revised Date,Date,False,False,,Field='revised' DataType='Date'. Free Text
+Securian,Asset Info,wcmSKU,SKU,String,False,False,,Field='wcmSKU' DataType='String'. Free Text
+Securian,Key Attributes,wcmAudience,Audience,String,False,False,,Field='wcmAudience' DataType='String'. Free Text
+Securian,Key Attributes,wcmAdmasterNumber,Admaster Number,String,False,False,,Field='wcmAdmasterNumber' DataType='String'. Free Text
+Securian,Key Attributes,wcmProductLine,Product Line,String,False,False,,Field='wcmProductLine' DataType='String'. Free Text
+Securian,Key Attributes,wcmPublishUrl,Publish URL,String,False,True,,Field='wcmPublishUrl' DataType='String'. Free Text
+Securian,Key Attributes,wcmRelativeUrl,Relative URL,String,False,True,,Field='wcmRelativeUrl' DataType='String'. Free Text
+Securian,Key Attributes,wcmDocumentType,Document Type,String,False,False,,Field='wcmDocumentType' DataType='String'. Free Text
+Securian,Key Attributes,xmpRights:WebStatement,Digital Rights Management URL,String,False,False,xmpRights,Field='xmpRights:WebStatement' DataType='String'. Free Text
+Securian,Key Attributes,wcmAdditionalStateRestrictions,States Approved For Use,String,False,False,,Field='wcmAdditionalStateRestrictions' DataType='String'. Free Text
+Securian,Key Attributes,wcmStatesExcluded,States Excluded,String,False,False,,Field='wcmStatesExcluded' DataType='String'. Free Text
+Securian,Key Attributes,wcmChannelApprovals,Distribution Channel,String,False,False,,Field='wcmChannelApprovals' DataType='String'. Free Text
+Securian,Key Attributes,wcmSpecificDistributors,Specific Distributors,String,False,False,,Field='wcmSpecificDistributors' DataType='String'. Free Text
+Securian,Key Attributes,wcmDistributorsExcluded,Distributors Excluded,String,False,False,,Field='wcmDistributorsExcluded' DataType='String'. Free Text
+Securian,Key Attributes,wcmFormNumber,Form Number,String,False,False,,Field='wcmFormNumber' DataType='String'. Free Text
+Securian,Key Attributes,wcmMarketingOwner,Marketing Owner,String,False,False,,Field='wcmMarketingOwner' DataType='String'. Free Text
+Securian,Key Attributes,wcmDepartmentOwner,Department Owner,String,False,False,,Field='wcmDepartmentOwner' DataType='String'. Free Text
+Securian,Key Attributes,wcmPlanId,,String,False,False,,Field='wcmPlanId' DataType='String'. Free Text
+Securian,Key Attributes,wcmEmployeeClassInformation,,String,False,False,,Field='wcmEmployeeClassInformation' DataType='String'. Free Text
+Securian,Key Attributes,wcmVname,Vendor Name,String,False,False,,Field='wcmVname' DataType='String'. Free Text
+Securian,Key Attributes,wcmVid,Vendor Image ID,String,False,False,,Field='wcmVid' DataType='String'. Free Text
+Securian,Key Attributes,syncToHighSpot,Sync to Highspot,String,False,False,,Field='syncToHighSpot' DataType='String'. Free Text
+Securian,Key Attributes,highspotUsageLabel,Highspot Usage Label,String,False,False,,Field='highspotUsageLabel' DataType='String'. Free Text
+Securian,Key Attributes,homeSpot,Home Spot,String,False,False,,Field='homeSpot' DataType='String'. Free Text
+Securian,Key Attributes,wcmSpots,Bookmarked Spots,String,False,False,,Field='wcmSpots' DataType='String'. Free Text
+Securian,Key Attributes,wcmHighspotGolive,Highspot Go-live Date,Date,False,False,,Field='wcmHighspotGolive' DataType='Date'. Free Text
+Securian,Key Attributes,wcmHighspotDeactivate,Highspot Deactivate Date,Date,False,False,,Field='wcmHighspotDeactivate' DataType='Date'. Free Text
+Product,Product Information,wcmRelatedProductType,Related Product Type,String,False,False,,Field='wcmRelatedProductType' DataType='String'. Free Text
+Product,Product Information,wcmRelatedProduct,Related Product,String,False,False,,Field='wcmRelatedProduct' DataType='String'. Free Text
+IPTC,Contact,photoshop:AuthorsPosition,Creator's Job Title,String,False,False,photoshop,Field='photoshop:AuthorsPosition' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr,Address,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrCity,City,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrCity' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrRegion,State/Province,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrRegion' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrPcode,Postal Code,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrPcode' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrCtry,Country,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiAdrCtry' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiTelWork,Phone(s),String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiTelWork' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiEmailWork,E-Mail(s),String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiEmailWork' DataType='String'. Free Text
+IPTC,Contact,Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiUrlWork,Website(s),String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CreatorContactInfo/Iptc4xmpCore:CiUrlWork' DataType='String'. Free Text
+IPTC,Image,photoshop:DateCreated,Date Created,Date,False,False,photoshop,Field='photoshop:DateCreated' DataType='Date'. Free Text
+IPTC,Image,Iptc4xmpCore:IntellectualGenre,Intellectual Genre,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:IntellectualGenre' DataType='String'. Free Text
+IPTC,Image,Iptc4xmpCore:Scene,IPTC Scene Code,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:Scene' DataType='String'. Free Text
+IPTC,Image,Iptc4xmpCore:Location,Sublocation,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:Location' DataType='String'. Free Text
+IPTC,Image,photoshop:City,City,String,False,False,photoshop,Field='photoshop:City' DataType='String'. Free Text
+IPTC,Image,photoshop:State,State/Province,String,False,False,photoshop,Field='photoshop:State' DataType='String'. Free Text
+IPTC,Image,photoshop:Country,Country,String,False,False,photoshop,Field='photoshop:Country' DataType='String'. Free Text
+IPTC,Image,Iptc4xmpCore:CountryCode,ISO Country Code,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:CountryCode' DataType='String'. Free Text
+IPTC ,Content and Status,photoshop:Headline,Headline,String,False,False,photoshop,Field='photoshop:Headline' DataType='String'. Free Text
+Securian,Asset Info,dc:iptcKeywords,,String,False,False,dc,Field='dc:iptcKeywords' DataType='String'. Free Text
+IPTC ,Content and Status,Iptc4xmpCore:SubjectCode,IPTC Subject Code,String,False,False,Iptc4xmpCore,Field='Iptc4xmpCore:SubjectCode' DataType='String'. Free Text
+IPTC ,Content and Status,photoshop:CaptionWriter,Description Writer,String,False,False,photoshop,Field='photoshop:CaptionWriter' DataType='String'. Free Text
+IPTC ,Content and Status,photoshop:TransmissionReference,Job Identifier,String,False,False,photoshop,Field='photoshop:TransmissionReference' DataType='String'. Free Text
+IPTC ,Content and Status,photoshop:Instructions,Instructions,String,False,False,photoshop,Field='photoshop:Instructions' DataType='String'. Free Text
+IPTC ,Content and Status,photoshop:Credit,Credit Line,String,False,False,photoshop,Field='photoshop:Credit' DataType='String'. Free Text
+IPTC ,Content and Status,photoshop:Source,Source,String,False,False,photoshop,Field='photoshop:Source' DataType='String'. Free Text
+IPTC Extention,Description of Image,Iptc4xmpExt:PersonInImage,Person Shown,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:PersonInImage' DataType='String'. Free Text
+IPTC Extention,Description of Image,Iptc4xmpExt:OrganisationInImageName,Name of Featured Organisation,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:OrganisationInImageName' DataType='String'. Free Text
+IPTC Extention,Description of Image,Iptc4xmpExt:OrganisationInImageCode,Code of Featured Organisation,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:OrganisationInImageCode' DataType='String'. Free Text
+IPTC Extention,About Models in Image,Iptc4xmpExt:AddlModelInfo,Additional Model Info,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:AddlModelInfo' DataType='String'. Free Text
+IPTC Extention,About Models in Image,Iptc4xmpExt:ModelAge,Model Age,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:ModelAge' DataType='String'. Free Text
+IPTC Extention,About Models in Image,plus:MinorModelAgeDisclosure,Minor Model Image Disclosure,String,False,False,plus,Field='plus:MinorModelAgeDisclosure' DataType='String'. Free Text
+IPTC Extention,About Models in Image,plus:ModelReleaseStatus,Model Release Status,String,False,False,plus,Field='plus:ModelReleaseStatus' DataType='String'. Free Text
+IPTC Extention,About Models in Image,plus:ModelReleaseID,Model Release Identifier,String,False,False,plus,Field='plus:ModelReleaseID' DataType='String'. Free Text
+IPTC Extention,Administrative and rights information,plus:ImageSupplierImageID,Supplier's Image ID,String,False,False,plus,Field='plus:ImageSupplierImageID' DataType='String'. Free Text
+IPTC Extention,Administrative and rights information,Iptc4xmpExt:MaxAvailWidth,Max available Width,Long,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:MaxAvailWidth' DataType='Long'. Free Text
+IPTC Extention,Administrative and rights information,Iptc4xmpExt:MaxAvailHeight,Max. available Height,Long,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:MaxAvailHeight' DataType='Long'. Free Text
+IPTC Extention,Administrative and rights information,Iptc4xmpExt:DigitalSourceType,Digital Source Type,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:DigitalSourceType' DataType='String'. Free Text
+IPTC Extention,Administrative and rights information,plus:PropertyReleaseStatus,Property Release Status,String,False,False,plus,Field='plus:PropertyReleaseStatus' DataType='String'. Free Text
+IPTC Extention,Administrative and rights information,plus:PropertyReleaseID,Property Release Identifier,String,False,False,plus,Field='plus:PropertyReleaseID' DataType='String'. Free Text
+Camera Data,Camera Information Test,tiff:Make,Make,String,False,True,tiff,Field='tiff:Make' DataType='String'. Free Text
+Camera Data,Camera Information Test,tiff:Model,Model,String,False,True,tiff,Field='tiff:Model' DataType='String'. Free Text
+Camera Data,Camera Information Test,psAux:OwnerName,Owner,String,False,True,psAux,Field='psAux:OwnerName' DataType='String'. Free Text
+Camera Data,Camera Information Test,psAux:Lens,Lens,String,False,True,psAux,Field='psAux:Lens' DataType='String'. Free Text
+Camera Data,Shot Information,exif:FocalLength,Focal Length (in mm),String,False,True,exif,Field='exif:FocalLength' DataType='String'. Free Text
+Camera Data,Shot Information,exif:FocalLengthIn35mmFilm,Focal Length (in 35 mm),String,False,True,exif,Field='exif:FocalLengthIn35mmFilm' DataType='String'. Free Text
+Camera Data,Shot Information,exif:ExposureTime,Exposure Time (secs),String,False,True,exif,Field='exif:ExposureTime' DataType='String'. Free Text
+Camera Data,Shot Information,exif:FNumber,F-Number,String,False,True,exif,Field='exif:FNumber' DataType='String'. Free Text
+Camera Data,Shot Information,exifEX:PhotographicSensitivity,ISO,String,False,True,exifEX,Field='exifEX:PhotographicSensitivity' DataType='String'. Free Text
+Camera Data,Shot Information,tiff:Orientation,Orientation,String,False,True,tiff,Field='tiff:Orientation' DataType='String'. Free Text
+Camera Data,Shot Information,tiff:XResolution,Resolution (Pixels per Inch),String,False,True,tiff,Field='tiff:XResolution' DataType='String'. Free Text
+Camera Data,Shot Information,exif:Flash/exif:Fired,Flash,String,False,True,exif,Field='exif:Flash/exif:Fired' DataType='String'. Free Text
+,,pdf:Title,Pdf Title,String,False,False,pdf,Field='pdf:Title' DataType='String'. Free Text
+,,pdf:subject,Subject,String,False,False,pdf,Field='pdf:subject' DataType='String'. Free Text
+TruForm,none,wcmTfIssueDate,Issue Date,Date,False,False,,Field='wcmTfIssueDate' DataType='Date'. Free Text
+TruForm,none,wcmTfRevisionDate,Revision Date,Date,False,False,,Field='wcmTfRevisionDate' DataType='Date'. Free Text
+TruForm,none,wcmTfReformatDate,Reformat Date,Date,False,False,,Field='wcmTfReformatDate' DataType='Date'. Free Text
+TruForm,none,wcmTfExpenseCategory,Expense Category,String,False,False,,Field='wcmTfExpenseCategory' DataType='String'. Free Text
+TruForm,none,wcmTfPrimaryFormOwner,Primary Form Owner,String,False,False,,Field='wcmTfPrimaryFormOwner' DataType='String'. Free Text
+TruForm,none,wcmTfBaseLegalNumber,Base Legal Number,String,False,False,,Field='wcmTfBaseLegalNumber' DataType='String'. Free Text
+TruForm,none,wcmTfFiledPolicyForm,Is this a filed policy form?,String,False,False,,Field='wcmTfFiledPolicyForm' DataType='String'. Free Text
+,,dam:size,Size,String,False,True,dam,Field='dam:size' DataType='String'. Free Text
+,,dam:youtube_category,YouTube Category,String,False,False,dam,Field='dam:youtube_category' DataType='String'. Free Text
+,,dam:youtube_privacy,YouTube Privacy,String,False,False,dam,Field='dam:youtube_privacy' DataType='String'. Free Text
+,,dam:youtube_urls,YouTube URL List,String,False,False,dam,Field='dam:youtube_urls' DataType='String'. Free Text
+Basic,Metadata,tiff:ImageWidth,Width,String,False,True,tiff,Field='tiff:ImageWidth' DataType='String'. Free Text
+Basic,Metadata,tiff:ImageLength,Height,String,False,True,tiff,Field='tiff:ImageLength' DataType='String'. Free Text
+,,dq:productReference,Product References,String,False,False,dq,Field='dq:productReference' DataType='String'. Free Text
+Basic,Metadata,Iptc4xmpExt:LocationShown,Location,String,False,False,Iptc4xmpExt,Field='Iptc4xmpExt:LocationShown' DataType='String'. Free Text
+,,scrn:adMasterId,Ad Master ID,String,True,False,scrn,Field='scrn:adMasterId' DataType='String'. Free Text
+,,videoDuration,Duration (seconds),String,False,True,,Field='videoDuration' DataType='String'. Free Text
+,,bitrate,Total Bit Rate (kbps),String,False,True,,Field='bitrate' DataType='String'. Free Text
+,,videoCodec,Video Codec,String,False,True,,Field='videoCodec' DataType='String'. Free Text
+,,videoBitrate,Video Bit Rate (kbps),String,False,True,,Field='videoBitrate' DataType='String'. Free Text
+,,frameRate,Video Frame Rate (fps),String,False,True,,Field='frameRate' DataType='String'. Free Text
+,,audioCodec,Audio Codec,String,False,True,,Field='audioCodec' DataType='String'. Free Text
+,,audioBitrate,Audio Bit Rate (kbps),String,False,True,,Field='audioBitrate' DataType='String'. Free Text
+,,audioSampleRate,Audio Sample Rate (hz),String,False,True,,Field='audioSampleRate' DataType='String'. Free Text
+,,audioChannels,Number Audio Channels,String,False,True,,Field='audioChannels' DataType='String'. Free Text

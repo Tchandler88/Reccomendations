@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Securian Financial — AEM DAM Migration | Track 3 Recommendations</title>
+<style>
+/* ── SECURIAN BRAND TOKENS ──────────────────────────────── */
+:root {
+  --sec-dark:    #0a3d1f;
+  --sec-mid:     #0f5c2e;
+  --sec-bright:  #1a8a42;
+  --sec-ring:    #3dba50;
+  --sec-light:   #e8f5ec;
+  --sec-pale:    #f3faf5;
+  --white:       #ffffff;
+  --gray-50:     #f9fafb;
+  --gray-100:    #f3f4f6;
+  --gray-200:    #e5e7eb;
+  --gray-400:    #9ca3af;
+  --gray-600:    #4b5563;
+  --gray-700:    #374151;
+  --gray-800:    #1f2937;
+  --text:        #111827;
+  --text-muted:  #6b7280;
+  /* Change type colors */
+  --c-merge:     #6366f1;
+  --c-retain:    #059669;
+  --c-move:      #d97706;
+  --c-split:     #ea580c;
+  --c-delete:    #dc2626;
+  --c-new:       #0284c7;
+  --c-schema:    #7c3aed;
+  --c-system:    #6b7280;
+  --c-review:    #b45309;
+  --c-critical:  #dc2626;
+  --c-rename:    #ca8a04;
+  --sidebar-w:   248px;
+  --pane-w:      380px;
+  --topbar-h:    56px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-100);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+a{color:var(--sec-bright)}
+button{cursor:pointer;font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:3px}
+
+/* ── TOPBAR ─────────────────────────────────────────────── */
+#topbar{
+  height:var(--topbar-h);
+  background:var(--sec-dark);
+  display:flex;align-items:center;
+  padding:0 20px;gap:16px;
+  flex-shrink:0;
+  border-bottom:2px solid var(--sec-ring);
+}
+.tb-logo{display:flex;align-items:center;gap:10px}
+.tb-logo-ring{
+  width:32px;height:32px;
+  border:3px solid var(--sec-ring);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.tb-logo-ring::after{
+  content:'';
+  width:20px;height:20px;
+  border:2.5px solid var(--sec-ring);
+  border-radius:50%;
+  opacity:.6;
+}
+.tb-brand-name{color:var(--white);font-size:18px;font-weight:700;letter-spacing:-.3px}
+.tb-brand-sub{color:var(--sec-ring);font-size:11px;font-weight:500;letter-spacing:.05em}
+.tb-divider{width:1px;height:28px;background:rgba(255,255,255,.2)}
+.tb-project{color:rgba(255,255,255,.75);font-size:12.5px}
+.tb-spacer{flex:1}
+.tb-badge{
+  font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:20px;
+  background:rgba(61,186,80,.15);
+  color:var(--sec-ring);
+  border:1px solid rgba(61,186,80,.3);
+}
+
+/* ── BODY LAYOUT ─────────────────────────────────────────── */
+#shell{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+#sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--sec-dark);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.sb-section-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+  color:rgba(255,255,255,.35);font-weight:600;
+  padding:16px 18px 6px;
+}
+.sb-nav{list-style:none;padding:0 8px;flex:1}
+.sb-item{margin-bottom:2px}
+.sb-btn{
+  width:100%;display:flex;align-items:center;gap:10px;
+  padding:10px 12px;background:none;border:none;
+  border-radius:8px;color:rgba(255,255,255,.6);
+  font-size:13px;font-weight:500;text-align:left;
+  transition:all .15s ease;cursor:pointer;
+}
+.sb-btn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.sb-btn.active{background:rgba(61,186,80,.15);color:var(--sec-ring)}
+.sb-icon{width:20px;height:20px;flex-shrink:0;opacity:.7;font-size:16px;display:flex;align-items:center;justify-content:center}
+.sb-btn.active .sb-icon{opacity:1}
+.sb-count{margin-left:auto;font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.sb-btn.active .sb-count{background:rgba(61,186,80,.2);color:var(--sec-ring)}
+.sb-footer{
+  padding:14px 18px;border-top:1px solid rgba(255,255,255,.08);
+  font-size:11px;color:rgba(255,255,255,.3);line-height:1.6;
+}
+
+/* ── MAIN ────────────────────────────────────────────────── */
+#main{flex:1;display:flex;overflow:hidden}
+#content-scroll{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* ── DETAIL PANE ─────────────────────────────────────────── */
+#detail-pane{
+  width:0;flex-shrink:0;
+  background:var(--white);
+  border-left:1px solid var(--gray-200);
+  overflow:hidden;
+  transition:width .25s ease;
+  display:flex;flex-direction:column;
+}
+#detail-pane.open{width:var(--pane-w)}
+#dp-header{
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:flex-start;justify-content:space-between;
+  flex-shrink:0;
+}
+#dp-close{
+  background:none;border:none;color:var(--gray-400);
+  font-size:18px;line-height:1;padding:2px 4px;
+  border-radius:4px;cursor:pointer;
+}
+#dp-close:hover{background:var(--gray-100);color:var(--gray-700)}
+#dp-type-badge{
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;
+  text-transform:uppercase;letter-spacing:.07em;
+  margin-bottom:6px;display:inline-block;
+}
+#dp-title{font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:4px}
+#dp-subtitle{font-size:12px;color:var(--text-muted)}
+#dp-body{flex:1;overflow-y:auto;padding:16px 18px}
+#dp-body h4{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:600;margin:12px 0 6px}
+#dp-body h4:first-child{margin-top:0}
+#dp-body p{font-size:12.5px;line-height:1.65;color:var(--gray-700);margin-bottom:10px}
+#dp-body .dp-path{
+  font-family:'Consolas','Courier New',monospace;font-size:11.5px;
+  background:var(--gray-100);padding:6px 10px;border-radius:6px;
+  color:var(--gray-700);margin-bottom:8px;word-break:break-all;
+  border-left:3px solid var(--gray-300);
+}
+#dp-body .dp-path.old{border-left-color:var(--c-delete)}
+#dp-body .dp-path.new{border-left-color:var(--c-retain)}
+#dp-risk{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 10px;border-radius:6px;
+  font-size:12px;font-weight:600;margin-bottom:10px;
+}
+#dp-risk.low{background:#d1fae5;color:#065f46}
+#dp-risk.medium{background:#fef3c7;color:#92400e}
+#dp-risk.high{background:#fee2e2;color:#991b1b}
+#dp-risk.critical{background:#fce7f3;color:#9d174d;border:1px solid #f9a8d4}
+
+/* ── PANELS ──────────────────────────────────────────────── */
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── SECTION HEADER ──────────────────────────────────────── */
+.sec-hdr{margin-bottom:20px}
+.sec-hdr h1{font-size:20px;font-weight:700;color:var(--gray-800);margin-bottom:5px}
+.sec-hdr p{font-size:13px;color:var(--text-muted);max-width:700px;line-height:1.6}
+
+/* ── STAT ROW ────────────────────────────────────────────── */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:22px}
+.stat-card{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:10px;padding:14px 16px;
+}
+.stat-card .slabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);font-weight:600;margin-bottom:6px}
+.stat-card .sval{font-size:24px;font-weight:800;line-height:1}
+.stat-card .sdesc{font-size:11px;color:var(--text-muted);margin-top:4px}
+.stat-card.green .sval{color:var(--c-retain)}
+.stat-card.red .sval{color:var(--c-delete)}
+.stat-card.amber .sval{color:var(--c-move)}
+.stat-card.blue .sval{color:var(--c-new)}
+.stat-card.purple .sval{color:var(--c-merge)}
+
+/* ── LEGEND ──────────────────────────────────────────────── */
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:var(--white);border:1px solid var(--gray-200);border-radius:8px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--gray-600)}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ── CV VALUE CHIPS ──────────────────────────────────────── */
+.cv-wrap{margin-top:6px}
+.cv-header{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--text-muted);margin-bottom:5px;
+}
+.cv-type-tag{
+  font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.cv-type-tag.dropdown  {background:#dbeafe;color:#1d4ed8}
+.cv-type-tag.multiselect{background:#ede9fe;color:#5b21b6}
+.cv-type-tag.checkbox  {background:#fef3c7;color:#92400e}
+.cv-chips{display:flex;flex-wrap:wrap;gap:4px;max-width:420px}
+.cv-chip{
+  font-size:10px;padding:2px 7px;border-radius:12px;
+  background:var(--gray-100);border:1px solid var(--gray-200);
+  color:var(--gray-700);white-space:nowrap;
+  transition:background .1s;
+}
+.cv-chip:hover{background:var(--sec-light);border-color:var(--sec-bright);color:var(--sec-dark)}
+.cv-chip.note{background:#fffbeb;border-color:#fde68a;color:#92400e;font-style:italic}
+.cv-chip.confirm{background:#fdf2f8;border-color:#f9a8d4;color:#9d174d}
+.cv-more{
+  font-size:10px;color:var(--text-muted);align-self:center;
+  cursor:pointer;text-decoration:underline;white-space:nowrap;
+}
+.cv-count-badge{
+  font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;
+  background:var(--sec-light);color:var(--sec-dark);
+}
+
+/* ── HIERARCHY TREE ──────────────────────────────────────── */
+.tree-panel-wrap{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:12px;overflow:hidden;margin-bottom:18px;
+}
+.mm-header{
+  padding:12px 20px;border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:700;
+}
+.mm-badge{font-size:10px;padding:3px 10px;border-radius:10px;font-weight:700}
+.mm-badge.legacy{background:#fee2e2;color:#991b1b}
+.mm-badge.recommended{background:#d1fae5;color:#065f46}
+.htree-scroll{overflow-y:auto;max-height:calc(100vh - 340px);padding:16px 12px 24px}
+/* Root node */
+.ht-root{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--sec-dark);color:var(--white);
+  padding:9px 18px;border-radius:8px;
+  font-size:13px;font-weight:700;margin-bottom:4px;
+  border:2px solid var(--sec-ring);letter-spacing:-.2px;
+}
+/* Level container */
+.ht-level{position:relative;padding-left:24px;margin-top:0}
+.ht-level::before{
+  content:'';position:absolute;left:10px;top:0;bottom:20px;
+  width:1.5px;background:var(--gray-200);
+}
+/* Each row */
+.ht-row{position:relative;margin:3px 0}
+.ht-row::before{
+  content:'';position:absolute;left:-14px;top:50%;
+  width:14px;height:1.5px;background:var(--gray-200);
+}
+/* Node box */
+.ht-node{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 12px 6px 10px;border-radius:7px;
+  border:1.5px solid;cursor:pointer;
+  transition:all .15s ease;min-width:180px;
+  max-width:320px;
+}
+.ht-node:hover{filter:brightness(.94);transform:translateX(2px)}
+.ht-node.selected{outline:2px solid var(--sec-bright);outline-offset:2px}
+.ht-node-icon{font-size:13px;flex-shrink:0}
+.ht-node-name{font-size:12px;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ht-node-badge{font-size:9px;font-weight:800;padding:2px 6px;border-radius:3px;flex-shrink:0;text-transform:uppercase;letter-spacing:.05em}
+.ht-node-toggle{font-size:10px;flex-shrink:0;color:inherit;opacity:.6;margin-left:4px}
+/* Children container (collapsible) */
+.ht-children{overflow:hidden;transition:all .2s ease}
+.ht-children.collapsed{display:none}
+/* Sub-folder styling (depth 2+) */
+.ht-node.depth-2{min-width:150px;padding:4px 10px 4px 8px}
+.ht-node.depth-2 .ht-node-name{font-size:11.5px}
+.ht-node.depth-3{min-width:130px;padding:3px 8px 3px 7px}
+.ht-node.depth-3 .ht-node-name{font-size:11px;font-weight:500}
+/* Change type color schemes */
+.ht-node.merge  {background:#f5f3ff;border-color:#a78bfa;color:#5b21b6}
+.ht-node.retain {background:#f0fdf4;border-color:#6ee7b7;color:#065f46}
+.ht-node.move   {background:#fffbeb;border-color:#fcd34d;color:#92400e}
+.ht-node.split  {background:#fff7ed;border-color:#fdba74;color:#9a3412}
+.ht-node.delete {background:#fff1f2;border-color:#fca5a5;color:#991b1b}
+.ht-node.new    {background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.ht-node.system {background:#f9fafb;border-color:#d1d5db;color:#374151}
+.ht-node.audience-sub{background:#faf5ff;border-color:#d8b4fe;color:#6d28d9;font-style:italic}
+/* Node badge colors */
+.ht-node.merge  .ht-node-badge{background:#ede9fe;color:#6d28d9}
+.ht-node.retain .ht-node-badge{background:#d1fae5;color:#065f46}
+.ht-node.move   .ht-node-badge{background:#fef3c7;color:#92400e}
+.ht-node.split  .ht-node-badge{background:#ffedd5;color:#c2410c}
+.ht-node.delete .ht-node-badge{background:#fee2e2;color:#991b1b}
+.ht-node.new    .ht-node-badge{background:#dbeafe;color:#1d4ed8}
+.ht-node.system .ht-node-badge{background:#f3f4f6;color:#6b7280}
+.ht-node.audience-sub .ht-node-badge{background:#ede9fe;color:#7c3aed}
+/* View toggle bar */
+.htree-toggle{
+  display:flex;gap:0;margin-bottom:16px;
+  border:1.5px solid var(--gray-200);border-radius:10px;
+  overflow:hidden;width:fit-content;background:var(--white);
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.htt-btn{
+  padding:9px 22px;border:none;background:none;
+  font-size:13px;font-weight:600;color:var(--text-muted);
+  transition:all .15s;cursor:pointer;letter-spacing:-.1px;
+}
+.htt-btn.active{background:var(--sec-dark);color:var(--white)}
+.htt-btn:not(.active):hover{background:var(--gray-50);color:var(--gray-700)}
+
+/* ── NODE STYLES (inline in SVG) ─────────────────────────── */
+
+/* ── TOGGLE BUTTON ───────────────────────────────────────── */
+.view-toggle{display:flex;gap:0;margin-bottom:14px;border:1px solid var(--gray-200);border-radius:8px;overflow:hidden;width:fit-content;background:var(--white)}
+.vt-btn{padding:7px 16px;border:none;background:none;font-size:12px;font-weight:500;color:var(--text-muted);transition:all .15s;cursor:pointer}
+.vt-btn.active{background:var(--sec-dark);color:var(--white)}
+
+/* ── CHANGE TABLE ────────────────────────────────────────── */
+.change-table-wrap{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:12px;overflow:hidden;margin-bottom:20px;
+}
+.ctw-header{
+  padding:12px 16px;border-bottom:1px solid var(--gray-200);
+  font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:space-between;
+}
+.ctw-search{
+  font-size:12px;padding:5px 10px;border:1px solid var(--gray-200);
+  border-radius:6px;outline:none;width:200px;
+}
+.ctw-search:focus{border-color:var(--sec-bright)}
+table.ctbl{width:100%;border-collapse:collapse;font-size:12.5px}
+table.ctbl th{
+  text-align:left;padding:9px 14px;
+  font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--text-muted);font-weight:600;
+  border-bottom:1px solid var(--gray-200);
+  background:var(--gray-50);position:sticky;top:0;
+}
+table.ctbl td{
+  padding:9px 14px;border-bottom:1px solid rgba(0,0,0,.04);
+  color:var(--gray-700);vertical-align:top;
+}
+table.ctbl tr:last-child td{border-bottom:none}
+table.ctbl tr.clickable:hover td{background:#f0fdf4;cursor:pointer}
+.mono{font-family:'Consolas','Courier New',monospace;font-size:11px}
+
+/* ── PILLS ───────────────────────────────────────────────── */
+.pill{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;padding:2px 7px;
+  border-radius:4px;text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;
+}
+.pill.merge  {background:#ede9fe;color:#5b21b6}
+.pill.retain {background:#d1fae5;color:#065f46}
+.pill.move   {background:#fef3c7;color:#92400e}
+.pill.split  {background:#ffedd5;color:#9a3412}
+.pill.delete {background:#fee2e2;color:#991b1b}
+.pill.new    {background:#dbeafe;color:#1d4ed8}
+.pill.schema {background:#ede9fe;color:#6d28d9}
+.pill.system {background:#f3f4f6;color:#374151}
+.pill.review {background:#fef3c7;color:#92400e}
+.pill.critical{background:#fce7f3;color:#9d174d}
+.pill.enforce{background:#dbeafe;color:#1d4ed8}
+.pill.retire {background:#fee2e2;color:#991b1b}
+.pill.label  {background:#fef9c3;color:#713f12}
+.risk-high   {background:#fee2e2;color:#991b1b;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700}
+.risk-med    {background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700}
+.risk-low    {background:#d1fae5;color:#065f46;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700}
+.risk-crit   {background:#fce7f3;color:#9d174d;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;border:1px solid #f9a8d4}
+
+/* ── AEM TAB UI (Metadata panel) ─────────────────────────── */
+.aem-ui{background:var(--white);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.aem-tab-bar{
+  display:flex;overflow-x:auto;
+  border-bottom:2px solid var(--gray-200);
+  background:var(--gray-50);
+  gap:0;
+}
+.aem-tab-bar::-webkit-scrollbar{height:3px}
+.aem-tab{
+  padding:10px 14px;border:none;background:none;
+  font-size:12px;font-weight:500;color:var(--text-muted);
+  white-space:nowrap;cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:all .15s;flex-shrink:0;
+}
+.aem-tab:hover{color:var(--gray-700);background:rgba(0,0,0,.02)}
+.aem-tab.active{color:var(--sec-dark);font-weight:600;border-bottom-color:var(--sec-bright)}
+.aem-tab-content{display:none;padding:0}
+.aem-tab-content.active{display:block}
+
+/* ── CALLOUT ─────────────────────────────────────────────── */
+.callout{border-radius:8px;padding:12px 16px;margin-bottom:14px;border:1px solid;font-size:12.5px;line-height:1.65}
+.callout.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.callout.warning{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.callout.danger{background:#fff1f2;border-color:#fecdd3;color:#be123c}
+.callout.critical{background:#fdf2f8;border-color:#f9a8d4;color:#9d174d}
+.callout strong{font-weight:700}
+
+/* ── DQ FLAG CARDS ───────────────────────────────────────── */
+.dq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-bottom:20px}
+.dq-card{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:10px;overflow:hidden;cursor:pointer;
+  transition:box-shadow .15s,border-color .15s;
+}
+.dq-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);border-color:var(--gray-300)}
+.dq-card-header{
+  padding:12px 14px;border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;gap:8px;
+}
+.dq-card-body{padding:12px 14px;font-size:12.5px;color:var(--gray-600);line-height:1.6}
+.dq-id{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+
+/* ── TREE (Tag tree) ─────────────────────────────────────── */
+.tree-wrap{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:12px;overflow:hidden;margin-bottom:18px;
+}
+.tree-body{padding:16px;font-size:13px;overflow-x:auto;max-height:600px;overflow-y:auto}
+.tree-node{
+  display:flex;align-items:flex-start;gap:6px;
+  padding:4px 6px;border-radius:6px;margin-bottom:1px;
+  cursor:pointer;transition:background .12s;
+}
+.tree-node:hover{background:var(--gray-50)}
+.tree-node.selected{background:var(--sec-light)}
+.tn-indent{flex-shrink:0;color:var(--gray-300);font-size:11px;user-select:none}
+.tn-icon{font-size:13px;flex-shrink:0;width:18px;text-align:center}
+.tn-name{flex:1;font-size:12.5px;color:var(--gray-800)}
+.tn-name.retain{color:#065f46;font-weight:600}
+.tn-name.schema{color:#5b21b6}
+.tn-name.system-node{color:var(--gray-400);font-style:italic}
+.tn-name.critical-node{color:#991b1b;font-weight:600}
+.tn-name.review-node{color:#92400e}
+.tn-pill{margin-left:auto;flex-shrink:0}
+.tn-count{font-size:11px;color:var(--text-muted);flex-shrink:0;font-family:'Consolas',monospace}
+
+/* ── ROLES SECTION ───────────────────────────────────────── */
+.role-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.role-card{
+  background:var(--white);border:1px solid var(--gray-200);
+  border-radius:10px;overflow:hidden;
+}
+.role-card-header{
+  padding:12px 14px;
+  border-bottom:1px solid var(--gray-200);
+  display:flex;align-items:center;gap:8px;
+}
+.role-dot{width:10px;height:10px;border-radius:50%}
+.role-card-body{padding:12px 14px}
+.role-perm{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:5px 0;border-bottom:1px solid rgba(0,0,0,.04);
+  font-size:12px;
+}
+.role-perm:last-child{border-bottom:none}
+.perm-allow{color:#059669;font-size:11px;font-weight:700}
+.perm-deny{color:#dc2626;font-size:11px;font-weight:700}
+.perm-partial{color:#d97706;font-size:11px;font-weight:700}
+
+/* ── FILTER CHIPS ────────────────────────────────────────── */
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.fc{padding:5px 12px;border-radius:20px;border:1px solid var(--gray-200);background:var(--white);font-size:12px;color:var(--gray-600);cursor:pointer;transition:all .15s}
+.fc:hover{border-color:var(--sec-bright);color:var(--sec-bright)}
+.fc.active{background:var(--sec-dark);border-color:var(--sec-dark);color:var(--white)}
+</style>
+</head>
+<body>
+<!-- ╔════════════════════════════════════════════════════════╗ -->
+<!-- ║  TOP BAR                                               ║ -->
+<!-- ╚════════════════════════════════════════════════════════╝ -->
+<div id="topbar">
+  <div class="tb-logo">
+    <div class="tb-logo-ring"></div>
+    <div>
+      <div class="tb-brand-name">securian</div>
+      <div class="tb-brand-sub">FINANCIAL</div>
+    </div>
+  </div>
+  <div class="tb-divider"></div>
+  <div class="tb-project">AEM DAM Migration · Track 3 — Metadata &amp; Tagging</div>
+  <div class="tb-spacer"></div>
+  <div class="tb-badge">📋 v1.4 Draft · March 2026</div>
+</div>
+
+<div id="shell">
+<!-- ╔════════════════════════════════════════════════════════╗ -->
+<!-- ║  SIDEBAR                                               ║ -->
+<!-- ╚════════════════════════════════════════════════════════╝ -->
+<nav id="sidebar">
+  <div class="sb-section-label">Migration Scope</div>
+  <ul class="sb-nav">
+    <li class="sb-item"><button class="sb-btn active" data-panel="folders" onclick="switchPanel('folders',this)"><span class="sb-icon">📁</span>Folder Structure<span class="sb-count">25→12</span></button></li>
+    <li class="sb-item"><button class="sb-btn" data-panel="tags" onclick="switchPanel('tags',this)"><span class="sb-icon">🏷️</span>Tag Tree<span class="sb-count">10→3</span></button></li>
+    <li class="sb-item"><button class="sb-btn" data-panel="metadata" onclick="switchPanel('metadata',this)"><span class="sb-icon">📋</span>Metadata Schema<span class="sb-count">137→154</span></button></li>
+    <li class="sb-item"><button class="sb-btn" data-panel="permissions" onclick="switchPanel('permissions',this)"><span class="sb-icon">🔐</span>Roles &amp; Permissions<span class="sb-count">DQ-07</span></button></li>
+    <li class="sb-item"><button class="sb-btn" data-panel="dq" onclick="switchPanel('dq',this)"><span class="sb-icon">⚠️</span>Data Quality Flags<span class="sb-count">8</span></button></li>
+  </ul>
+  <div class="sb-footer">
+    <strong>Lasso Consulting Group</strong><br>
+    Prepared for Securian Financial<br>
+    Track 3 · Phases 1, 2 &amp; 4
+  </div>
+</nav>
+
+<!-- ╔════════════════════════════════════════════════════════╗ -->
+<!-- ║  MAIN CONTENT                                          ║ -->
+<!-- ╚════════════════════════════════════════════════════════╝ -->
+<div id="main">
+<div id="content-scroll">
+
+<!-- ══════ PANEL: FOLDER STRUCTURE ══════════════════════════ -->
+<div id="panel-folders" class="panel active">
+  <div class="sec-hdr">
+    <h1>📁 Folder Structure Redesign</h1>
+    <p>The legacy DAM contains 447 folders across 25 top-level containers, many encoding audience codes (fi, am, ia) as folder names rather than metadata. The proposed architecture reduces this to 12 governance-first containers aligned with AEM Cloud Service best practices. Click any node or row to view change justification.</p>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card red"><div class="slabel">Legacy Containers</div><div class="sval">25</div><div class="sdesc">Top-level folders</div></div>
+    <div class="stat-card green"><div class="slabel">Proposed Containers</div><div class="sval">12</div><div class="sdesc">Governance-first</div></div>
+    <div class="stat-card red"><div class="slabel">Legacy Total Folders</div><div class="sval">447</div><div class="sdesc">Including sub-folders</div></div>
+    <div class="stat-card green"><div class="slabel">Target Folder Count</div><div class="sval">~190</div><div class="sdesc">Est. post-migration</div></div>
+    <div class="stat-card amber"><div class="slabel">Audience Folders Removed</div><div class="sval">60+</div><div class="sdesc">Replaced by dam:audience field</div></div>
+    <div class="stat-card blue"><div class="slabel">Max Depth</div><div class="sval">7→5</div><div class="sdesc">Levels deep</div></div>
+  </div>
+
+  <div class="legend">
+    <span class="leg-item"><span class="leg-dot" style="background:var(--c-merge)"></span>MERGE</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--c-retain)"></span>RETAIN</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--c-move)"></span>MOVE</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--c-split)"></span>SPLIT</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--c-delete)"></span>DELETE</span>
+    <span class="leg-item"><span class="leg-dot" style="background:var(--c-new)"></span>NEW</span>
+    <span class="leg-item" style="margin-left:8px;font-size:11px;color:var(--text-muted)">💡 Click any node for justification →</span>
+  </div>
+
+  <div class="htree-toggle">
+    <button class="htt-btn active" onclick="showFolderView('legacy',this)">📂 Legacy Structure <span style="opacity:.6;font-weight:400;font-size:11px">25 containers</span></button>
+    <button class="htt-btn" onclick="showFolderView('proposed',this)">✅ Proposed Architecture <span style="opacity:.6;font-weight:400;font-size:11px">12 containers</span></button>
+    <button class="htt-btn" onclick="showFolderView('table',this)">📊 Change Table</button>
+  </div>
+
+  <!-- LEGACY HIERARCHY TREE -->
+  <div id="folder-legacy-view">
+    <div class="tree-panel-wrap">
+      <div class="mm-header">
+        📂 Legacy DAM Structure — /content/dam
+        <span class="mm-badge legacy">25 top-level containers · 447 folders · depth up to 7 levels</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-weight:400">Click any folder to view change justification →</span>
+      </div>
+      <div class="htree-scroll">
+        <div class="ht-root">📁 /content/dam</div>
+        <div class="ht-level" id="legacy-tree-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPOSED HIERARCHY TREE -->
+  <div id="folder-proposed-view" style="display:none">
+    <div class="tree-panel-wrap">
+      <div class="mm-header">
+        ✅ Proposed DAM Structure — /content/dam
+        <span class="mm-badge recommended">12 containers · ~190 folders · max depth 5</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text-muted);font-weight:400">Click any folder to view design rationale →</span>
+      </div>
+      <div class="htree-scroll">
+        <div class="ht-root">📁 /content/dam</div>
+        <div class="ht-level" id="proposed-tree-root"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table View (hidden by default) -->
+  <div id="folder-table-view" style="display:none">
+    <div class="filter-row" id="folder-filter-row">
+      <button class="fc active" onclick="filterFolders('all',this)">All</button>
+      <button class="fc" onclick="filterFolders('merge',this)">MERGE</button>
+      <button class="fc" onclick="filterFolders('retain',this)">RETAIN</button>
+      <button class="fc" onclick="filterFolders('move',this)">MOVE</button>
+      <button class="fc" onclick="filterFolders('split',this)">SPLIT</button>
+      <button class="fc" onclick="filterFolders('delete',this)">DELETE</button>
+    </div>
+    <div class="change-table-wrap">
+      <div class="ctw-header">Folder Change Log — All 25 Containers<input class="ctw-search" id="folder-search" placeholder="Search folders…" oninput="searchTable('folder-search','folder-tbody')"></div>
+      <div style="overflow-x:auto;max-height:480px;overflow-y:auto">
+      <table class="ctbl">
+        <thead><tr><th>Legacy Path</th><th>Change</th><th>Proposed Path</th><th>Issue</th><th>Risk</th></tr></thead>
+        <tbody id="folder-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PANEL: TAG TREE ════════════════════════════════════ -->
+<div id="panel-tags" class="panel">
+  <div class="sec-hdr">
+    <h1>🏷️ Tag Tree Redesign</h1>
+    <p>The current tag tree performs two conflicting functions: content classification (what an asset IS ABOUT) and operational metadata routing (how, where, and for whom an asset is used). The proposed architecture retains only classification tags, moving all operational metadata to schema fields. Click any namespace to view the full justification.</p>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card red"><div class="slabel">Current Namespaces</div><div class="sval">10</div><div class="sdesc">Top-level</div></div>
+    <div class="stat-card green"><div class="slabel">Retained Namespaces</div><div class="sval">3</div><div class="sdesc">Classification only</div></div>
+    <div class="stat-card red"><div class="slabel">Current Tags</div><div class="sval">~1,500</div><div class="sdesc">Across all namespaces</div></div>
+    <div class="stat-card green"><div class="slabel">Target Tag Count</div><div class="sval">~85</div><div class="sdesc">Active post-migration</div></div>
+    <div class="stat-card amber"><div class="slabel">Migrated to Schema</div><div class="sval">7</div><div class="sdesc">New schema fields required</div></div>
+    <div class="stat-card red"><div class="slabel">Critical Hold</div><div class="sval">DQ-07</div><div class="sdesc">ACL rebuild required</div></div>
+  </div>
+  <div class="callout critical"><strong>⛔ CRITICAL HOLD — DQ-07:</strong> The wcm-tags:security namespace (~200 tags) actively controls content access via AEM ACLs and Closed User Groups. These tags MUST NOT be retired until a replacement ACL model is fully built and validated in Stage. Premature retirement creates unauthorized content exposure. <strong>See DQ flags panel for full action plan.</strong></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div>
+      <div class="tree-wrap">
+        <div class="mm-header"><span>Current Tag Tree</span><span class="mm-badge legacy">~1,500 tags · 10 namespaces</span></div>
+        <div class="tree-body" id="legacy-tag-tree"></div>
+      </div>
+    </div>
+    <div>
+      <div class="tree-wrap">
+        <div class="mm-header"><span>Proposed Tag Tree</span><span class="mm-badge recommended">~85 tags · 3 namespaces</span></div>
+        <div class="tree-body" id="new-tag-tree"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PANEL: METADATA SCHEMA ════════════════════════════ -->
+<div id="panel-metadata" class="panel">
+  <div class="sec-hdr">
+    <h1>📋 Metadata Schema Redesign</h1>
+    <p>The legacy schema configures all 137 fields as free text — including the 37 closed-list fields defined in the Controlled Vocabulary workbook. There is zero enforcement at the schema level. The proposed schema converts all CV fields to enforced dropdowns, adds 17 new fields, and establishes MIME-type-specific child schemas. Click any field row for full justification.</p>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card red"><div class="slabel">Legacy Fields</div><div class="sval">137</div><div class="sdesc">All free text</div></div>
+    <div class="stat-card green"><div class="slabel">Target Fields</div><div class="sval">154</div><div class="sdesc">137 + 17 new</div></div>
+    <div class="stat-card blue"><div class="slabel">CV Fields Enforced</div><div class="sval">37</div><div class="sdesc">Free text → dropdown</div></div>
+    <div class="stat-card amber"><div class="slabel">Fields to Review</div><div class="sval">4</div><div class="sdesc">Blank labels / unclear</div></div>
+    <div class="stat-card red"><div class="slabel">Fields to Retire</div><div class="sval">6</div><div class="sdesc">Legacy/duplicate</div></div>
+    <div class="stat-card green"><div class="slabel">New Fields Added</div><div class="sval">17</div><div class="sdesc">Phase 1+4 discoveries</div></div>
+  </div>
+  <div class="callout warning"><strong>⚠ Usage Count Ambiguity:</strong> JCRUNCH reports zero usage across all 137 fields. This may indicate a package export scope error, mismatched JCR property paths, or genuine data absence. <strong>This must be resolved before migration scripting begins.</strong> See Section 2.3 of the Metadata Analysis document for the three-scenario resolution guide.</div>
+  <div class="aem-ui">
+    <div class="aem-tab-bar" id="aem-tab-bar"></div>
+    <div id="aem-tab-panels"></div>
+  </div>
+</div>
+
+<!-- ══════ PANEL: PERMISSIONS ════════════════════════════════ -->
+<div id="panel-permissions" class="panel">
+  <div class="sec-hdr">
+    <h1>🔐 Roles, Permissions &amp; ACL Architecture</h1>
+    <p>The current permission model relies heavily on tag-based Closed User Groups (wcm-tags:security, ~200 tags) which is a legacy AEM pattern incompatible with AEM Cloud Service's group-based ACL model. A full ACL rebuild is required before the tag migration can be completed. This panel documents the proposed role model and migration prerequisites.</p>
+  </div>
+  <div class="callout critical"><strong>🔴 MIGRATION BLOCKER — DQ-07:</strong> The wcm-tags:security namespace must remain intact until a replacement group-based ACL model is fully designed, built in Stage, and validated. This is the final migration phase — schedule it LAST, after all other namespace retirements are complete.</div>
+  <div class="stat-row">
+    <div class="stat-card red"><div class="slabel">Security Tags</div><div class="sval">~200</div><div class="sdesc">wcm-tags:security namespace</div></div>
+    <div class="stat-card amber"><div class="slabel">Tag Patterns</div><div class="sval">4</div><div class="sdesc">WCM_ACM, WCM_Advisor, WCM_FIG, WCM_Product</div></div>
+    <div class="stat-card blue"><div class="slabel">Proposed Role Groups</div><div class="sval">6</div><div class="sdesc">AEM Cloud Service groups</div></div>
+    <div class="stat-card green"><div class="slabel">ACL Model</div><div class="sval">NEW</div><div class="sdesc">Group-based, not tag-based</div></div>
+  </div>
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gray-800)">Legacy Permission Tag Patterns → Proposed Groups</h3>
+  <div class="change-table-wrap" style="margin-bottom:20px">
+    <div class="ctw-header">Legacy Security Tag → Proposed ACL Group Mapping</div>
+    <div style="overflow-x:auto">
+    <table class="ctbl">
+      <thead><tr><th>Legacy Tag Pattern</th><th>~Tags</th><th>Content Controlled</th><th>Proposed ACL Group</th><th>Risk</th></tr></thead>
+      <tbody>
+        <tr class="clickable" onclick="openDetail('acl-wcmacm')"><td class="mono">WCM_ACM_*</td><td>~50</td><td>Advisor Content Management — content visible only to internal advisory roles</td><td>group-dam-advisors</td><td><span class="risk-high">HIGH</span></td></tr>
+        <tr class="clickable" onclick="openDetail('acl-advisor')"><td class="mono">WCM_Advisor_*</td><td>~55</td><td>Advisor territory assignments (FIA, IA, Life, RP with regional sub-values)</td><td>group-dam-advisor-territory</td><td><span class="risk-high">HIGH</span></td></tr>
+        <tr class="clickable" onclick="openDetail('acl-fig')"><td class="mono">WCM_FIG_*</td><td>~40</td><td>Financial institution / group channel content — employer and group benefits</td><td>group-dam-group-channel</td><td><span class="risk-med">MED</span></td></tr>
+        <tr class="clickable" onclick="openDetail('acl-product')"><td class="mono">WCM_Product_*</td><td>~55</td><td>Product-specific content gating — life insurance, annuities, retirement products</td><td>group-dam-product-[line]</td><td><span class="risk-med">MED</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+  <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gray-800)">Proposed AEM Cloud Service DAM User Role Model</h3>
+  <div class="role-grid" id="role-grid"></div>
+  <h3 style="font-size:14px;font-weight:700;margin:20px 0 12px;color:var(--gray-800)">DQ-06 — wcm-tags:advisor Personalization Risk</h3>
+  <div class="callout warning"><strong>⚠ HIGH RISK — Advisor Portal Personalization:</strong> The wcm-tags:advisor territory tags (~55) may be actively driving personalized content delivery in the advisor portal via Adobe Target audience rules or AEM Context Hub segment definitions. If these tags are retired before the personalization rules are rewritten to read from the new <span class="mono" style="background:#f3f4f6;padding:1px 4px;border-radius:3px">wcmAdvisorTerritory</span> schema field, advisor portal content targeting will silently fail. <strong>Required action: WCM developer must audit all Adobe Target audience rules and Context Hub configurations before retirement begins.</strong> The DAM migration may proceed in parallel — assets can carry both the old tag and new schema field during transition.</div>
+  <div style="margin-top:14px">
+    <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--gray-800)">Required New Schema Field: wcmAdvisorTerritory</h3>
+    <div class="change-table-wrap">
+      <table class="ctbl">
+        <thead><tr><th>Sub-namespace</th><th>~Values</th><th>Proposed Schema Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>wcm-tags:advisor/FIA</td><td>~12</td><td>wcmAdvisorTerritory</td><td><span class="pill new">new field</span></td><td>FIA regional sub-values</td></tr>
+          <tr><td>wcm-tags:advisor/IA</td><td>~10</td><td>wcmAdvisorTerritory</td><td><span class="pill new">new field</span></td><td>Independent Advisor territories</td></tr>
+          <tr><td>wcm-tags:advisor/Life</td><td>~18</td><td>wcmAdvisorTerritory</td><td><span class="pill new">new field</span></td><td>Life channel territories</td></tr>
+          <tr><td>wcm-tags:advisor/RP</td><td>~15</td><td>wcmAdvisorTerritory</td><td><span class="pill new">new field</span></td><td>Retirement Plans territories</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PANEL: DATA QUALITY FLAGS ════════════════════════ -->
+<div id="panel-dq" class="panel">
+  <div class="sec-hdr">
+    <h1>⚠️ Data Quality Flags</h1>
+    <p>Eight data quality issues were identified during the tag tree analysis. Each has a recommended resolution based on AEM best practice and Securian's product domain. These should be confirmed with the appropriate stakeholder before execution. Click any card for the full recommended resolution.</p>
+  </div>
+  <div class="filter-row">
+    <button class="fc active" onclick="filterDQ('all',this)">All (8)</button>
+    <button class="fc" onclick="filterDQ('critical',this)">🔴 Critical (1)</button>
+    <button class="fc" onclick="filterDQ('high',this)">🟠 High (1)</button>
+    <button class="fc" onclick="filterDQ('medium',this)">🟡 Medium (3)</button>
+    <button class="fc" onclick="filterDQ('low',this)">🟢 Low (3)</button>
+  </div>
+  <div class="dq-grid" id="dq-grid"></div>
+</div>
+
+</div><!-- /content-scroll -->
+
+<!-- ══════ DETAIL PANE ════════════════════════════════════════ -->
+<div id="detail-pane">
+  <div id="dp-header">
+    <div>
+      <div id="dp-type-badge">Change</div>
+      <div id="dp-title">—</div>
+      <div id="dp-subtitle"></div>
+    </div>
+    <button id="dp-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div id="dp-body"></div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ╔════════════════════════════════════════════════════════╗ -->
+<!-- ║  DATA LAYER                                            ║ -->
+<!-- ╚════════════════════════════════════════════════════════╝ -->
+<script>
+// ── FOLDER DATA ──────────────────────────────────────────────
+const FOLDERS = [
+  {id:'f-s-vid',legacy:'s-vid',change:'merge',proposed:'/video/web',issue:'Audience sub-folders (fi,am,ia,il,bd,grp,sf,rs,aff) duplicate structure',risk:'high',
+   just:'Nine separate audience-coded sub-folders duplicate the full video folder structure for each channel. An asset serving both fi and ia audiences must either be duplicated or placed arbitrarily. Replacing these folders with the multi-value dam:audience metadata field allows a single asset to carry multiple audience values.',
+   old:'/content/dam/s-vid/[fi|am|ia|...]',newp:'/content/dam/video/web'},
+  {id:'f-s-doc',legacy:'s-doc',change:'merge',proposed:'/documents/marketing',issue:'Same audience-code pattern as s-vid; parallel to /doc',risk:'high',
+   just:'Securian-branded document container duplicates /doc with identical audience-code sub-folder structure. Authors had to choose between two containers for the same content type with no governance guidance. Consolidation into /documents/marketing eliminates the ambiguity. Audience filtering moves to dam:audience schema field.',
+   old:'/content/dam/s-doc/[audience]',newp:'/content/dam/documents/marketing'},
+  {id:'f-form',legacy:'form',change:'merge',proposed:'/forms/marketing',issue:'Audience sub-folders; parallel to /s-form',risk:'medium',
+   just:'Marketing and compliance forms stored with audience-code sub-folder structure, duplicating /s-form. Consolidation removes the dual-container governance problem. AEM Forms system output is separated into /forms/aem-output to prevent accidental modification.',
+   old:'/content/dam/form/[audience]',newp:'/content/dam/forms/marketing'},
+  {id:'f-s-frag',legacy:'s-frag',change:'merge',proposed:'/fragments',issue:'Duplicates /fragments; inconsistent naming convention',risk:'medium',
+   just:'Content fragments for advisors and contacts were split across /s-frag and /fragments with no documented ownership boundary. The s- prefix convention is not applied consistently across the DAM. /fragments is designated the primary container; all s-frag content migrates there.',
+   old:'/content/dam/s-frag',newp:'/content/dam/fragments'},
+  {id:'f-formsanddocs',legacy:'formsanddocuments',change:'retain',proposed:'/forms/aem-output [SYSTEM]',issue:'System-managed; path dependencies in AEM Forms',risk:'high',
+   just:'This folder is managed by the AEM Forms module and has hardcoded path dependencies in Forms workflow configurations. It must not be restructured without AEM Forms team sign-off. RETAIN the path but rename the top-level container to /forms/aem-output for naming convention compliance after Forms team confirmation.',
+   old:'/content/dam/formsanddocuments',newp:'/content/dam/forms/aem-output'},
+  {id:'f-s-form',legacy:'s-form',change:'merge',proposed:'/forms/marketing',issue:'Redundant parallel to /form',risk:'low',
+   just:'Secondary form store with audience-code sub-folders running parallel to /form. No clear ownership distinction between the two form containers. Consolidation into /forms/marketing removes author confusion.',
+   old:'/content/dam/s-form/[audience]',newp:'/content/dam/forms/marketing'},
+  {id:'f-doc',legacy:'doc',change:'merge',proposed:'/documents/marketing',issue:'Parallel to /s-doc with overlapping content types',risk:'medium',
+   just:'Generic document store parallel to /s-doc with no documented boundary. Both containers hold marketing documents of the same types. Consolidation into /documents/marketing with a clear content scope definition eliminates the governance gap.',
+   old:'/content/dam/doc',newp:'/content/dam/documents/marketing'},
+  {id:'f-vtt',legacy:'_VTT',change:'move',proposed:'/video/closed-captions',issue:'Orphaned system folder at root level; uppercase name violates naming standard',risk:'low',
+   just:'Closed caption and VTT files logically belong with the video assets they support. Moving to /video/closed-captions co-locates captions with their parent video content and resolves the uppercase naming violation. The underscore prefix should be reserved for the /_system umbrella folder.',
+   old:'/content/dam/_VTT',newp:'/content/dam/video/closed-captions'},
+  {id:'f-int',legacy:'int',change:'split',proposed:'/documents/internal + /forms/internal',issue:'Mixed content: forms and documents combined without separation',risk:'medium',
+   just:'The /int container holds both internal documents and internal forms in a single undifferentiated folder. AEM Workflow and permission profiles are applied at the folder level — mixing content types prevents appropriate processing rules. Splitting into /documents/internal and /forms/internal enables separate workflow assignment and permission scoping for each content type.',
+   old:'/content/dam/int',newp:'/content/dam/documents/internal AND /content/dam/forms/internal'},
+  {id:'f-s-reg',legacy:'s-reg',change:'merge',proposed:'/documents/regulatory',issue:'Duplicates /reg; same content type with no ownership distinction',risk:'medium',
+   just:'Securian-prefixed regulatory document container running parallel to /reg. Prospectus, performance reports, and compliance filings are split across both without clear routing rules. /documents/regulatory becomes the single authoritative path for all regulatory content.',
+   old:'/content/dam/s-reg',newp:'/content/dam/documents/regulatory'},
+  {id:'f-reg',legacy:'reg',change:'merge',proposed:'/documents/regulatory',issue:'Parallel to /s-reg; same content type',risk:'medium',
+   just:'General regulatory document container parallel to /s-reg. Both serve the same purpose with overlapping content. Consolidation eliminates the duplicate and creates a single governance point for regulated financial document management.',
+   old:'/content/dam/reg',newp:'/content/dam/documents/regulatory'},
+  {id:'f-creative',legacy:'creative-assets',change:'merge',proposed:'/images + /video/creative',issue:'Parallel image/video store duplicating /img and /video',risk:'high',
+   just:'The creative-assets container reflects internal team ownership (Creative team vs. Marketing team) rather than content type. Adobe\'s DAM governance guidance is explicit: organize by content type, not team origin. Team ownership belongs in metadata (wcmDepartmentOwner) and workflow configuration, not folder structure. Creative photography merges into /images/photography; creative video into /video/creative.',
+   old:'/content/dam/creative-assets',newp:'/content/dam/images (photography) + /content/dam/video/creative'},
+  {id:'f-templates',legacy:'templates',change:'merge',proposed:'/images (review WCM templates separately)',issue:'Mixed WCM page templates and DAM asset templates; unclear boundary',risk:'medium',
+   just:'Page templates and email templates are mixed with image assets under a single /templates container. WCM page templates should be governed by the WCM team in the Sites content tree, not the DAM. DAM-specific templates (email image templates, presentation templates) migrate to /images. WCM team must audit their template paths before this migration executes.',
+   old:'/content/dam/templates',newp:'/content/dam/images + WCM team to confirm Sites templates'},
+  {id:'f-fdthemes',legacy:'formsanddocuments-themes',change:'retain',proposed:'/forms/aem-output [SYSTEM]',issue:'System-managed AEM Forms theme assets',risk:'high',
+   just:'AEM Forms theme assets managed by the Forms module. Path dependencies exist in Forms rendering configurations. Same treatment as /formsanddocuments — retain and co-locate under /forms/aem-output after Forms team confirmation.',
+   old:'/content/dam/formsanddocuments-themes',newp:'/content/dam/forms/aem-output'},
+  {id:'f-video',legacy:'video',change:'merge',proposed:'/video/web',issue:'Duplicates s-vid; no consistent audience encoding',risk:'high',
+   just:'General video store parallel to /s-vid. The two containers served overlapping purposes without a clear routing rule for authors. All web video consolidates into /video/web; creative video into /video/creative; internal video into /video/internal.',
+   old:'/content/dam/video',newp:'/content/dam/video/web'},
+  {id:'f-img',legacy:'img',change:'retain',proposed:'/images [REORGANIZED]',issue:'Largest image repository; parallel to creative-assets/img; audience sub-folders present',risk:'medium',
+   just:'The primary image store is retained as the authoritative /images container, absorbing content from /creative-assets/img and /securian/web-assets/img. Internal sub-folder reorganization removes audience-coded sub-folders (hp, sp, mp, ip, ap) and replaces them with descriptive function names (hero, sidebar, content-groups). dam:imageUse schema field carries the page-position metadata previously encoded in folder names.',
+   old:'/content/dam/img/[audience-code]/[type]',newp:'/content/dam/images/[type]/[function]'},
+  {id:'f-fragments',legacy:'fragments',change:'retain',proposed:'/fragments [PRIMARY]',issue:'Partially overlaps /s-frag; should absorb all fragment content',risk:'low',
+   just:'The primary content fragment container. Designated the merge target for /s-frag content. Fragment types (contacts, events, third-party links, video fragments) are organized as direct sub-folders. The s-frag prefix convention is retired.',
+   old:'/content/dam/fragments',newp:'/content/dam/fragments [absorbs s-frag]'},
+  {id:'f-securian',legacy:'securian',change:'merge',proposed:'/images + /video + /brand + /canada',issue:'Deeply nested site-specific sub-folders by brand era and site; naming convention violations',risk:'high',
+   just:'The /securian container holds a deeply nested mixture of images, video, brand assets, and Canadian market content, many with brand-era version suffixes embedded in folder names (e.g., securian-2019, brand-rebrand). Brand era is an asset attribute — it belongs in the dam:brandVersion metadata field. Content redistributes to type-based containers; Canadian content moves to the new /canada top-level container.',
+   old:'/content/dam/securian/[site]/[brand-era]/[type]',newp:'/images, /video, /brand, /canada'},
+  {id:'f-tech',legacy:'tech',change:'move',proposed:'/_system/tech',issue:'Technical/developer assets at root level',risk:'low',
+   just:'Technical and developer-facing assets (API documentation images, code screenshots, technical diagrams) should be isolated from authored content paths. Moving under /_system/tech prevents content authors from accidentally discovering and reusing technical assets in customer-facing content. /_system prefix clearly marks the folder as restricted.',
+   old:'/content/dam/tech',newp:'/content/dam/_system/tech'},
+  {id:'f-uploads',legacy:'uploads',change:'delete',proposed:'CLEAR — assets relocated',issue:'Ad hoc upload staging area used as permanent storage; migration risk',risk:'critical',
+   just:'The /uploads container was intended as a temporary staging area but has been used as permanent storage for assets without proper folder placement. All assets in /uploads must be audited and migrated to their correct content-type containers before migration. /uploads should not exist as a permanent path in Cloud Service — authors with upload permissions will have dedicated folders in their content domain.',
+   old:'/content/dam/uploads',newp:'AUDIT REQUIRED — all assets must be relocated to correct paths'},
+  {id:'f-idoc',legacy:'i-doc',change:'merge',proposed:'/documents/internal',issue:'Redundant parallel to /int/doc',risk:'low',
+   just:'Secondary internal document store redundant with the documents portion of /int. Content migrates to /documents/internal as part of the /int split action.',
+   old:'/content/dam/i-doc',newp:'/content/dam/documents/internal'},
+  {id:'f-mktops',legacy:'marketing-ops',change:'merge',proposed:'/images + /documents/marketing',issue:'Campaign-specific assets without consistent structure',risk:'medium',
+   just:'Marketing Operations assets (campaign images, marketing briefs, go-to-market materials) are mixed in a single container without content-type separation. Images migrate to /images with appropriate sub-folder placement. Marketing documents migrate to /documents/marketing. Campaign association is tracked via the wcmCampaignName schema field rather than folder organization.',
+   old:'/content/dam/marketing-ops',newp:'/images + /documents/marketing'},
+  {id:'f-workfront',legacy:'workfront',change:'retain',proposed:'/_system/workfront [SYSTEM]',issue:'Workfront connector dependency; must not be restructured',risk:'high',
+   just:'The Workfront DAM connector has hardcoded path configurations pointing to this folder. Any path change requires a corresponding update in the Workfront connector configuration and re-validation of all Workfront-triggered asset workflows. RETAIN path; move under /_system to signal system-managed status.',
+   old:'/content/dam/workfront',newp:'/content/dam/_system/workfront'},
+  {id:'f-css',legacy:'_CSS',change:'retain',proposed:'/_system/css [SYSTEM]',issue:'Dynamic Media CSS assets; system folder',risk:'low',
+   just:'CSS and styling assets used by Dynamic Media for rendered output. Managed by the AEM/Dynamic Media system. Path must remain stable. Rename to /_system/css for naming convention compliance while preserving the path under the /_system governance umbrella.',
+   old:'/content/dam/_CSS',newp:'/content/dam/_system/css'},
+  {id:'f-dmsample',legacy:'_DMSAMPLE',change:'delete',proposed:'DELETE',issue:'Adobe-installed Dynamic Media sample assets; no production value',risk:'low',
+   just:'Adobe installs sample Dynamic Media assets during the initial AEM setup. These have no production value and should not be migrated to Cloud Service. Delete before migration scripting begins to avoid unnecessary content transfer.',
+   old:'/content/dam/_DMSAMPLE',newp:'DELETE — no migration action needed'},
+];
+
+// ── TAG NAMESPACE DATA ───────────────────────────────────────
+const TAG_NAMESPACES = [
+  {id:'tn-asset-preview',name:'asset-preview/',tags:'~55',disp:'schema',risk:'low',target:'Folder structure + wcmDocumentType',
+   just:'These tags mirror the folder hierarchy and form-type navigation labels (AGIA, Brand Assets, TPA Assets) rather than describing what assets are about. Folder classification belongs in the folder structure (Phase 4); form type belongs in the wcmDocumentType schema dropdown. Tag tree navigation duplicating the folder structure confuses authors and inflates the tag picker.'},
+  {id:'tn-custom-search',name:'custom-search-tag/',tags:'1',disp:'review',risk:'low',target:'Admin confirmation required',
+   just:'Only one node is visible in the export. Cannot confirm purpose or asset associations without a JCRUNCH frequency report. Flag for admin confirmation before deciding retirement or retention.'},
+  {id:'tn-default',name:'default/',tags:'system',disp:'system',risk:'none',target:'AEM system — do not modify',
+   just:'Adobe-managed system namespace containing standard AEM review workflow tags (Approved, Rejected, Stale). Not applied to DAM assets. Must not be modified during DAM migration.'},
+  {id:'tn-exp-frag',name:'experience-fragments/',tags:'system',disp:'system',risk:'none',target:'Adobe managed',
+   just:'Adobe-managed namespace for Experience Fragment variation management. Not applied to DAM assets. Do not modify during DAM migration.'},
+  {id:'tn-properties',name:'properties/',tags:'~8',disp:'retain',risk:'none',target:'Stays in tag tree',
+   just:'Pure content classification — these tags describe observable visual properties of an asset. Orientation (landscape/portrait/square) and style (color/monochrome/grayscale) are legitimately faceted attributes used for image search filtering. A new high-contrast tag is proposed for accessibility-optimized image classification. Keep as-is.'},
+  {id:'tn-securian',name:'securian/',tags:'~500',disp:'mixed',risk:'medium',target:'Sub-namespaces classified individually',
+   just:'The securian namespace contains both legitimate subject classification (securian:topics) and operational metadata (securian:audience, securian:business-lines, securian:truform). Sub-namespaces must be classified individually — see expanded view.',
+   children:[
+     {id:'tn-sec-audience',name:'securian:audience/',tags:'~110',disp:'schema',risk:'medium',target:'wcmAudience / dam:audience',
+      just:'Audience segment describes WHO receives the asset — Advisors/Financial Professionals, Employers and Employees, Individuals and Families. This is operational routing metadata driving personalization, access, and distribution decisions. Retiring ~110 audience tags removes a depth-5 namespace that is unusable in the standard AEM tag picker UI. Every audience value maps 1:1 to a schema field value — no information is lost.'},
+     {id:'tn-sec-bizlines',name:'securian:business-lines/',tags:'~9',disp:'schema',risk:'low',target:'wcmBusinessLine (consolidate)',
+      just:'Exact duplicate of wcm-tags:business-lines — two namespaces carrying identical vocabulary. Authors must pick one tag set or the other, producing inconsistent tagging across the corpus. wcmBusinessLine schema field consolidates both. Retire both tag namespaces after schema population.'},
+     {id:'tn-sec-topics',name:'securian:topics/',tags:'~120',disp:'retain',risk:'none',target:'Stays in tag tree (restructured)',
+      just:'Subject matter classification is the core function of the tag tree. securian:topics describes what assets ARE ABOUT — financial planning concepts, life events, business strategy, brand marketing themes. This is irreplaceable as a tag because it enables cross-folder, cross-asset-type content discovery by topic. The sub-namespace structure maps cleanly to the proposed flat 2-level hierarchy. RETAIN with cleanup.'},
+     {id:'tn-sec-truform',name:'securian:truform/',tags:'~28',disp:'schema',risk:'low',target:'wcmTruFormDepartment',
+      just:'Contains 28 internal department names (Accounts Payable, Group Claims, Human Resources, Legal, etc.) used to route TruForm form assets to the correct department. Department routing is operational metadata, not content classification. A dedicated wcmTruFormDepartment schema field with a controlled dropdown of department names provides the same routing capability with proper governance.'},
+     {id:'tn-sec-campaigns',name:'securian:campaigns/',tags:'~45',disp:'schema',risk:'medium',target:'wcmCampaignName',
+      just:'Campaign tags (Kare-11 sponsorship, wellbeing initiative, specific product launches) are time-bound and campaign-specific. They do not represent stable classification vocabulary. Campaign association belongs in a text field (wcmCampaignName) that can accept new values without tag tree governance overhead. Zero-association campaign tags can be deleted immediately; active associations must be migrated first.'},
+     {id:'tn-sec-products',name:'securian:related-products/',tags:'~60',disp:'schema',risk:'low',target:'wcmRelatedProduct',
+      just:'Product name tags are already defined in the wcmRelatedProduct schema field. Maintaining them as both tags and schema field values creates a governance split — product names get updated in one location but not the other. Retire the tag namespace and use wcmRelatedProduct exclusively.'},
+   ]},
+  {id:'tn-wcm',name:'wcm-tags/',tags:'~820',disp:'mixed-high',risk:'critical',target:'HIGHEST RISK — multiple actions',
+   just:'The largest (~820 nodes) and highest-risk namespace. Contains ~200 security tags controlling content access, advisor territory tags potentially driving personalization, and legitimate WCM page categorization. Must not be retired without ACL rebuild.',
+   children:[
+     {id:'tn-wcm-target',name:'wcm-tags:adobe_target/',tags:'2',disp:'system',risk:'none',target:'Adobe Target — do not modify',
+      just:'Adobe Target experience configuration tags managed by the WCM/personalization team. Not applicable to DAM assets. Do not modify during DAM migration.'},
+     {id:'tn-wcm-advisor',name:'wcm-tags:advisor/',tags:'~55',disp:'schema',risk:'high',target:'wcmAdvisorTerritory (NEW)',
+      just:'CRITICAL RISK: Advisor territory tags (FIA, IA, Life, RP with regional sub-values) may be actively driving personalized advisor portal content delivery via Adobe Target or AEM Context Hub rules. If these tags are queried by personalization rules, retiring them before updating the personalization configuration will silently break advisor portal content delivery. Coordinate with WCM developer before ANY retirement action. See DQ-06.'},
+     {id:'tn-wcm-bizlines',name:'wcm-tags:business-lines/',tags:'~9',disp:'schema',risk:'low',target:'wcmBusinessLine (consolidate)',
+      just:'Exact duplicate of securian:business-lines. Both namespaces carry identical vocabulary. Consolidate to wcmBusinessLine schema field. Retire both tag namespaces.'},
+     {id:'tn-wcm-channelappr',name:'wcm-tags:channel_approvals/',tags:'~6',disp:'schema',risk:'medium',target:'wcmChannelApprovals',
+      just:'Compliance distribution approval tags (Bank, BGA/IMO, IBD, IMO, Producer Group, None–Internal) record which distribution channels have received regulatory approval for an asset. This is a compliance function, not content classification. Already maps to the wcmChannelApprovals schema field in the CV workbook.'},
+     {id:'tn-wcm-doctype',name:'wcm-tags:document_type/',tags:'~30',disp:'schema',risk:'low',target:'wcmDocumentType',
+      just:'Document type classification is already defined in the wcmDocumentType schema field. Maintaining it as both a tag and a schema field creates a governance split. Retire the tag namespace and use wcmDocumentType exclusively.'},
+     {id:'tn-wcm-features',name:'wcm-tags:feature-articles/',tags:'~150',disp:'retain',risk:'low',target:'WCM pages ONLY',
+      just:'WCM page categorization tags for the securian.com website article taxonomy. These tags are applied to WCM PAGES, not to DAM assets. Must be retained for website content management. IMPORTANT: These tags must NOT be applied to DAM assets. A governance note should be added to Tag Manager to clearly label this namespace as WCM-only.'},
+     {id:'tn-wcm-firms',name:'wcm-tags:firms_approved/',tags:'~22',disp:'schema',risk:'medium',target:'wcmFirmsApproved (NEW)',
+      just:'Firm-level distribution approval tags (specific broker-dealer and bank names approved to receive an asset). Operational metadata for compliance tracking. Moves to a new wcmFirmsApproved schema field. Note: Verify current active firm list — known outdated values include acquired firms (Waddell and Reed → Macquarie, BBVA → PNC).'},
+     {id:'tn-wcm-lang',name:'wcm-tags:language/',tags:'~8',disp:'schema',risk:'low',target:'wcmLanguage',
+      just:'Language classification already exists as a schema field. Maintaining it as a tag duplicates the field. Retire the tag namespace.'},
+     {id:'tn-wcm-productline',name:'wcm-tags:product_line/',tags:'~14',disp:'schema',risk:'low',target:'wcmProductLine',
+      just:'Product line taxonomy already exists as wcmProductLine schema field with 14 values. Retire the tag namespace and use wcmProductLine exclusively.'},
+     {id:'tn-wcm-relproduct',name:'wcm-tags:related_product/',tags:'~59',disp:'schema',risk:'medium',target:'wcmRelatedProduct',
+      just:'Product-level tags already exist as wcmRelatedProduct schema field values. Contains the DQ-01 typo flag ("SecrueLink Ultra 7"). Retire after schema population and DQ-01 resolution.'},
+     {id:'tn-wcm-security',name:'wcm-tags:security/',tags:'~200',disp:'critical',risk:'critical',target:'HOLD — ACL rebuild required',
+      just:'HIGHEST RISK in the entire tag tree. Contains ~200 permission tags (WCM_ACM_*, WCM_Advisor_*, WCM_FIG_*, WCM_Product_*) that appear to function as access control flags controlling which user groups can view which content. If these tags are evaluated by AEM Access Control Lists, Closed User Groups (CUGs), or dispatcher rules, retiring them without first rebuilding the access control layer will create unauthorized content exposure. DO NOT begin migration of this namespace until the new ACL model has been fully designed, built, and validated in Stage. See DQ-07 for full action plan.'},
+     {id:'tn-wcm-truform',name:'wcm-tags:truform_departments/',tags:'~28',disp:'schema',risk:'low',target:'wcmTruFormDepartment',
+      just:'Duplicate of securian:truform. Both namespaces contain the same 28 department routing values. Consolidate to wcmTruFormDepartment schema field.'},
+   ]},
+  {id:'tn-workflow',name:'workflow/',tags:'system',disp:'system',risk:'none',target:'AEM system — do not modify',
+   just:'AEM workflow model and process step tags. Not applied to DAM assets. Do not modify.'},
+];
+
+// ── METADATA SCHEMA TABS ─────────────────────────────────────
+const META_TABS = [
+  {id:'tab-basic',label:'Basic — Metadata',fields:12,sys:5,user:7,items:[
+    {field:'dc:title',label:'Title',disp:'retain',action:'Keep — free text appropriate for asset titles',risk:'none',cv:{type:'text'}},
+    {field:'dc:description',label:'Description',disp:'retain',action:'Keep — free text narrative description',risk:'none',cv:{type:'text'}},
+    {field:'wcmLanguage',label:'Language',disp:'enforce',action:'Convert to single-select dropdown. Tag namespace retirement of wcm-tags:language depends on this enforcement. Confirm Chinese variant with admin (Q5).',risk:'low',
+     cv:{type:'dropdown',count:5,values:['English','Spanish','Chinese — Simplified','Chinese — Traditional','French — Canadian'],note:'⚠ Confirm Chinese Simplified vs Traditional with admin before deploying (Q5)'}},
+    {field:'dam:status',label:'Review Status',disp:'enforce',action:'Workflow-critical field — convert to single-select. Workflow rules may depend on exact value strings (e.g., "Approved"). Test with workflow team after conversion.',risk:'low',
+     cv:{type:'dropdown',count:7,values:['Draft','In Review','Approved','Published','Rejected','Expired','Archived']}},
+    {field:'cq:tags',label:'General Tags',disp:'retain',action:'Primary tag field for DAM asset classification. Retains connection to securian:topics/ and properties/ (the two RETAIN namespaces).',risk:'none',cv:{type:'tags',note:'securian:topics/ + properties/ namespaces only post-migration'}},
+    {field:'cq:tags-security',label:'Security Tags',disp:'retire',action:'RETIRE after DQ-07 ACL rebuild is complete. Blocked — do not retire before new group-based ACL model is validated in Stage.',risk:'critical',cv:{type:'n/a',note:'⛔ Blocked on DQ-07 — ACL rebuild required first'}},
+    {field:'cq:tags-sitesection',label:'Site/Section Tags',disp:'review',action:'REVIEW — purpose overlaps with new wcmWebsiteSection field (Phase 1). Confirm with WCM team if still actively used for content routing before retiring.',risk:'medium',cv:{type:'review'}},
+    {field:'jcr:created',label:'Created Date',disp:'retain',action:'System-managed creation date. No action required.',risk:'none',cv:{type:'date',note:'System-managed — read only'}},
+    {field:'xmp:CreatorTool',label:'Creator Tool',disp:'retain',action:'EXIF/XMP field populated from file metadata on ingest. Not an author-editable governance field.',risk:'none',cv:{type:'text',note:'System-populated from file EXIF on ingest'}},
+    {field:'predictedTags',label:'Smart Tags',disp:'retain',action:'Adobe Sensei Smart Tags auto-classification. After Phase 1 tag tree cleanup, Sensei suggestions will be constrained to securian:topics/ terms only — a governance benefit that compounds over time.',risk:'none',cv:{type:'tags',note:'System — Adobe Sensei auto-classification'}},
+    {field:'wcmApiClient',label:'API Client',disp:'review',action:'REVIEW — system-managed field tracking which API client ingested the asset. Confirm not displayed in schema editor UI.',risk:'medium',cv:{type:'review'}},
+  ]},
+  {id:'tab-license',label:'Advanced — License',fields:9,sys:2,user:7,items:[
+    {field:'dc:creator',label:'Creator',disp:'retain',action:'Free text — photographer/creator attribution. Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'dc:contributor',label:'Contributor',disp:'retain',action:'Free text — contributor attribution. Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'dc:rights',label:'Copyright',disp:'enforce',action:'Currently free text. Convert to single-select. Coordinate with Legal before deploying — copyright statement wording must be pre-approved. Confirm year format convention.',risk:'low',
+     cv:{type:'dropdown',count:5,values:['© [Year] Securian Financial. All rights reserved.','© [Year] Minnesota Life Insurance Company. All rights reserved.','© [Year] Securian Life Insurance Company of New York. All rights reserved.','Licensed — Third Party Rights Apply','Public Domain'],note:'⚠ Exact wording must be pre-approved by Legal before deployment'}},
+    {field:'xmpRights:Owner',label:'Copyright Owner',disp:'retain',action:'Free text — legal entity name. Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'xmpRights:UsageTerms',label:'Usage Terms',disp:'enforce',action:'Currently free text. Convert to single-select. Same legal review as dc:rights. Confirm "Internal Use Only" vs "Securian Internal Use Only" exact wording with Legal.',risk:'low',
+     cv:{type:'dropdown',count:6,values:['Internal Use Only','Licensed — Restricted Use','Licensed — Unlimited Internal Use','Licensed — Time Limited (see Expiration Date)','Rights Managed — Contact Legal','Royalty Free — Unlimited Use'],note:'⚠ Confirm exact wording with Legal before deploying'}},
+    {field:'prism:expirationDate',label:'DRM Expiration Date',disp:'retain',action:'Date picker retained. CRITICAL: When this date is reached, non-admin users lose ability to download, copy, move, publish, or share the asset. This is a hard access cutoff — must be communicated in all DAM author training.',risk:'medium',cv:{type:'date',note:'⚠ Hard DRM cutoff — non-admin users locked out on expiry date. Must be covered in author training.'}},
+    {field:'dam:search_promote',label:'Promote in Search',disp:'retain',action:'Boolean checkbox. Label updated from "Promote Search" to "Promote in Search" (CV v3 cosmetic improvement). Retained as-is.',risk:'none',cv:{type:'checkbox',values:['☑ Promote this asset in Omnisearch results']}},
+    {field:'wcmFuturePublishDate',label:'Workfront Future Publish Date',disp:'retain',action:'System-managed field populated by the Workfront-AEM connector. Not directly edited by DAM authors.',risk:'none',cv:{type:'date',note:'System-populated by Workfront connector'}},
+    {field:'jcr:uuid',label:'ID',disp:'retain',action:'System-managed unique identifier. Not author-editable.',risk:'none',cv:{type:'text',note:'System-managed UUID — read only'}},
+  ]},
+  {id:'tab-assetinfo',label:'Securian — Asset Info',fields:9,sys:2,user:7,items:[
+    {field:'friendlyTitle',label:'Asset Display Name',disp:'retain',action:'Free text editorial display name. Distinct from dc:title (technical title). Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'colorSpace',label:'Color Space',disp:'enforce',action:'Currently free text. Convert to single-select. Confirm P3 value with admin — may be system-detected, possibly not author-editable (Q6).',risk:'low',
+     cv:{type:'dropdown',count:6,values:['sRGB','AdobeRGB','CMYK','P3','Grayscale','Monochrome'],note:'⚠ P3 value still assumed — confirm with admin before deploying (Q6)'}},
+    {field:'wcmAltText',label:'Alt Text',disp:'retain',action:'Free text — image accessibility alt text. Must remain open text to accommodate diverse image descriptions.',risk:'none',cv:{type:'text',note:'Free text — accessibility critical, must not be a dropdown'}},
+    {field:'wcmCaption',label:'Caption',disp:'retain',action:'Free text editorial caption. Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'wcmSKU',label:'SKU',disp:'retain',action:'Free text — print fulfillment SKU number. SKUs are assigned by the fulfillment system, not from a controlled list.',risk:'none',cv:{type:'text'}},
+    {field:'original',label:'Date of First Use',disp:'retain',action:'Date picker for first publication/distribution date. Appropriate as-is.',risk:'none',cv:{type:'date'}},
+    {field:'revised',label:'Revised Date',disp:'retain',action:'Date picker for most recent revision. Appropriate as-is.',risk:'none',cv:{type:'date'}},
+    {field:'dam:relativePath',label:'Asset Name ⚠ MISLABELED',disp:'label',action:'LABEL UPDATE — field is labeled "Asset Name" but stores dam:relativePath (the JCR path). Correct label to "Asset Path (JCR)". The friendlyTitle field serves the display name purpose.',risk:'low',cv:{type:'text',note:'Mislabeled — update to "Asset Path (JCR)"'}},
+    {field:'dc:subject',label:'(blank label)',disp:'review',action:'REVIEW — blank label in schema editor. Standard Dublin Core subject/keywords field. Confirm: (a) Is it actively used? (b) Does it duplicate cq:tags? Candidate for retirement if zero associations confirmed.',risk:'medium',cv:{type:'review',note:'Blank label — purpose unconfirmed from JCRUNCH extraction'}},
+  ]},
+  {id:'tab-keyattr',label:'Securian — Key Attributes',fields:24,sys:2,user:22,items:[
+    {field:'wcmAudience',label:'Audience — Consumer Segment',disp:'enforce',action:'Convert to multi-select. Label updated in CV v3 to distinguish from new dam:audience (distribution channel). Maps to 4 audience segment values. Note: dam:audience is the separate Phase 4 field for distribution channel routing.',risk:'medium',
+     cv:{type:'multiselect',count:4,values:['Advisors & Financial Professionals','Employers & Employees','Individuals & Families','All Audiences']}},
+    {field:'wcmAdmasterNumber',label:'Admaster Number',disp:'retain',action:'Free text — compliance control number assigned by Admaster system. Must remain free text as numbers are system-assigned.',risk:'none',cv:{type:'text',note:'System-assigned compliance number — free text'}},
+    {field:'wcmProductLine',label:'Product Line',disp:'enforce',action:'Currently free text. Convert to multi-select. High-value conversion — product line drives reporting and Smart Collections. Enables retirement of wcm-tags:product_line namespace.',risk:'medium',
+     cv:{type:'multiselect',count:14,values:['Life Insurance','Disability Insurance','Long-Term Care','Annuities','Retirement Plans','Group Benefits','Wealth Management','Institutional','SecureLink Product Family','Eclipse Product Family','Credit & Payment Protection','Employee Benefits','Individual Insurance','Other / General'],note:'Confirm final 14 values with business development team'}},
+    {field:'wcmDocumentType',label:'Document Type',disp:'enforce',action:'Currently free text. Convert to single-select. 35 values — largest dropdown. Consider grouped rendering (product type first, then specific type). High priority — drives search faceting and compliance reporting. Enables retirement of wcm-tags:document_type.',risk:'medium',
+     cv:{type:'dropdown',count:35,values:['Brochure','Fact Sheet','Flyer','Guide','Application Form','Enrollment Form','Claims Form','Prospectus','Annual Report','SAI','Performance Report','Proxy Statement','State Filing','Supplement','White Paper','Case Study','Infographic','Video','Presentation','Email Template','Social Post','Banner Ad','Direct Mail','Sales Script','Training Material','Compliance Filing','Legal Notice','Policy Document','Rate Sheet','Product Summary','Rollover Kit','Beneficiary Form','Change Form','Authorization Form','Other'],note:'Confirm final 35 values — single-select per asset'}},
+    {field:'xmpRights:WebStatement',label:'Digital Rights Management URL',disp:'retain',action:'Free text URL field for DRM policy page. Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'wcmAdditionalStateRestrictions',label:'States Approved For Use',disp:'enforce',action:'Critical compliance field — free text creates regulatory risk if state codes are entered inconsistently. Convert to multi-select. 53 values including "All" and "All Except Excluded" special values.',risk:'high',
+     cv:{type:'multiselect',count:53,values:['All States','All Except Excluded','Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','District of Columbia','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'],showFirst:6,note:'53 values total — 50 states + DC + "All" + "All Except Excluded"'}},
+    {field:'wcmStatesExcluded',label:'States Excluded',disp:'enforce',action:'Companion compliance field to States Approved. 51 exclusion values. Convert to multi-select.',risk:'high',
+     cv:{type:'multiselect',count:51,values:['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','District of Columbia','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'],showFirst:6,note:'51 values — all 50 states + DC'}},
+    {field:'wcmChannelApprovals',label:'Distribution Channel — Approvals',disp:'enforce',action:'Compliance field — records which distribution channels have received regulatory approval. Label updated in CV v3. Convert to multi-select. Enables retirement of wcm-tags:channel_approvals.',risk:'high',
+     cv:{type:'multiselect',count:6,values:['Bank','BGA/IMO','IBD','IMO','Producer Group','None — Internal Use Only']}},
+    {field:'wcmSpecificDistributors',label:'Specific Distributors (Approved Firms)',disp:'enforce',action:'Currently free text. 24 firm names. Convert to multi-select. Confirm active firm list with distribution team — known outdated values: Waddell & Reed (acquired by Macquarie), BBVA (acquired by PNC).',risk:'medium',
+     cv:{type:'multiselect',count:24,values:['[24 active BD/bank/BGA/IMO firm names]'],note:'⚠ Verify active firm list before deploying. Known outdated: Waddell & Reed → Macquarie, BBVA → PNC. Full list in CV workbook.'}},
+    {field:'wcmDistributorsExcluded',label:'Distributors Excluded',disp:'enforce',action:'Currently free text. 4 exclusion values. Convert to multi-select. Confirm bank name changes.',risk:'high',
+     cv:{type:'multiselect',count:4,values:['[4 values — confirm with distribution team]'],note:'⚠ 4 values — confirm exclusion list with distribution/compliance team'}},
+    {field:'wcmFormNumber',label:'Form Number',disp:'retain',action:'Free text — form identifier assigned by forms management system. Must remain free text.',risk:'none',cv:{type:'text'}},
+    {field:'wcmMarketingOwner',label:'Marketing Owner',disp:'retain',action:'Free text — person name. Appropriate as open text (people change roles; a controlled list would require constant maintenance).',risk:'none',cv:{type:'text'}},
+    {field:'wcmDepartmentOwner',label:'Department Owner',disp:'retain',action:'Free text — department name. Appropriate as open text.',risk:'none',cv:{type:'text'}},
+    {field:'wcmPlanId',label:'(blank label)',disp:'review',action:'REVIEW — blank label, undocumented. Confirm: (a) What does it store? (b) Actively populated? (c) Should it be labeled and exposed, or retired? Candidate for retirement if zero associations confirmed.',risk:'medium',cv:{type:'review',note:'Blank label — admin confirmation required'}},
+    {field:'wcmEmployeeClassInformation',label:'(blank label)',disp:'review',action:'REVIEW — blank label, undocumented. Field name suggests employee class info for group benefits content. Confirm purpose and active use.',risk:'medium',cv:{type:'review',note:'Blank label — may relate to group benefits employee class data'}},
+    {field:'wcmVname',label:'Vendor Name',disp:'retain',action:'Free text — stock photography vendor (Getty, Shutterstock, etc.). Appropriate as open text.',risk:'none',cv:{type:'text',note:'e.g. Getty Images, Shutterstock, iStock'}},
+    {field:'wcmVid',label:'Vendor Image ID',disp:'retain',action:'Free text — stock photography unique image identifier. Must remain free text as IDs are vendor-assigned.',risk:'none',cv:{type:'text'}},
+    {field:'syncToHighSpot',label:'Sync to Highspot',disp:'retain',action:'Boolean checkbox. Retained as-is.',risk:'none',cv:{type:'checkbox',values:['☑ Flag this asset for Highspot sync']}},
+    {field:'highspotUsageLabel',label:'Highspot Usage Label',disp:'enforce',action:'Currently free text. 5 values. Convert to single-select. Must be confirmed against live Highspot instance (Q23).',risk:'low',
+     cv:{type:'dropdown',count:5,values:['[5 values — confirm against live Highspot instance]'],note:'⚠ Values must be confirmed against live Highspot instance (Q23) before deploying'}},
+    {field:'homeSpot',label:'Home Spot',disp:'review',action:'REVIEW — currently free text. Purpose requires Highspot admin input to define value list (Q24).',risk:'low',cv:{type:'review',note:'Requires Highspot admin input (Q24)'}},
+    {field:'wcmSpots',label:'Bookmarked Spots',disp:'review',action:'REVIEW — currently free text. Purpose requires Highspot admin input (Q24).',risk:'low',cv:{type:'review',note:'Requires Highspot admin input (Q24)'}},
+    {field:'wcmHighspotGolive',label:'Highspot Go-live Date',disp:'retain',action:'Date picker for Highspot publication scheduling. Appropriate as-is.',risk:'none',cv:{type:'date'}},
+    {field:'wcmHighspotDeactivate',label:'Highspot Deactivate Date',disp:'retain',action:'Date picker for Highspot deactivation scheduling. Appropriate as-is.',risk:'none',cv:{type:'date'}},
+  ]},
+  {id:'tab-product',label:'Product — Info',fields:2,sys:0,user:2,items:[
+    {field:'wcmRelatedProductType',label:'Related Product Type',disp:'enforce',action:'Currently free text. Convert to dropdown. Product type classification above the specific product name level (e.g., IUL, VUL, Annuity type). Values TBD — confirm with product marketing team.',risk:'medium',
+     cv:{type:'dropdown',values:['[values TBD — confirm with product marketing team]'],note:'⚠ Full value list requires product marketing team confirmation'}},
+    {field:'wcmRelatedProduct',label:'Related Product',disp:'enforce',action:'Currently free text. Convert to dropdown. Enables retirement of securian:related-products and wcm-tags:related_product tag namespaces. DQ-01 typo (SecrueLink Ultra 7) must be resolved before CV is finalized.',risk:'medium',
+     cv:{type:'dropdown',count:'~60+',values:['SecureLink Future 9','SecureLink Future 10','SecureLink Ultra 5','SecureLink Ultra 7 ⚠ DQ-01 typo','Eclipse Protector','Eclipse Protector Plus','Eclipse Accumulator','[+ additional product names from CV workbook]'],note:'⚠ Resolve DQ-01 typo (SecrueLink → SecureLink Ultra 7) before deploying. Full product list in CV workbook.'}},
+  ]},
+  {id:'tab-truform',label:'TruForm',fields:8,sys:0,user:8,items:[
+    {field:'wcmTfIssueDate',label:'Issue Date',disp:'retain',action:'Date picker — TruForm-specific issue date. Mandatory in TruForm child schema.',risk:'none',cv:{type:'date',note:'Required in TruForm schema'}},
+    {field:'wcmTfRevisionDate',label:'Revision Date',disp:'retain',action:'Date picker for most recent TruForm revision.',risk:'none',cv:{type:'date'}},
+    {field:'wcmTfReformatDate',label:'Reformat Date',disp:'retain',action:'Date picker for TruForm reformat date.',risk:'none',cv:{type:'date'}},
+    {field:'wcmTfExpenseCategory',label:'Expense Category',disp:'enforce',action:'Currently free text. Convert to dropdown — department expense categories from CV. Confirm value list with Finance/Accounting.',risk:'low',
+     cv:{type:'dropdown',values:['[values — confirm with Finance/Accounting team]'],note:'⚠ Full expense category list requires Finance team confirmation'}},
+    {field:'wcmTfPrimaryFormOwner',label:'Primary Form Owner',disp:'retain',action:'Free text — individual person name. Mandatory in TruForm child schema.',risk:'none',cv:{type:'text',note:'Required in TruForm schema — free text person name'}},
+    {field:'wcmTfBaseLegalNumber',label:'Base Legal Number',disp:'retain',action:'Free text — legal form number. Mandatory in TruForm child schema.',risk:'none',cv:{type:'text',note:'Required in TruForm schema'}},
+    {field:'wcmTruFormDepartment',label:'TruForm Department',disp:'new',action:'NEW FIELD — replaces securian:truform and wcm-tags:truform_departments tag namespaces. 28 department routing values. Confirm TruForm routing logic reads from schema field path, not cq:tags (DQ-08).',risk:'low',
+     cv:{type:'dropdown',count:28,values:['Accounts Payable','Actuarial','Compliance','Corporate Communications','Finance','Group Claims','Human Resources','Information Technology','Investments','Legal','Marketing','Operations','Payroll','Risk Management','Sales Operations','Tax','Treasury','Underwriting — Life','Underwriting — Group','Underwriting — Annuity','[+8 additional department values — confirm with TruForm team]'],note:'~28 total values — confirm full list with TruForm/Forms Management team (DQ-08)'}},
+    {field:'wcmTfFiledPolicy',label:'Filed Policy Form',disp:'retain',action:'Boolean checkbox flag — marks form as a filed policy form.',risk:'none',cv:{type:'checkbox',values:['☑ This is a filed policy form']}},
+  ]},
+  {id:'tab-newfields-p4',label:'New Fields — Phase 4 (Folder)',fields:7,sys:0,user:7,items:[
+    {field:'dam:audience',label:'Audience — Distribution Channel',disp:'new',action:'NEW FIELD — replaces 60+ audience-coded sub-folders (fi/, am/, ia/, bd/, etc.). Multi-value enables a single asset to carry multiple audience values. Populate atomically during folder migration.',risk:'medium',
+     cv:{type:'multiselect',count:12,values:['Financial Intermediary','Independent Advisor','Independent Broker-Dealer','Broker-Dealer (Captive)','Asset Management','Group / Employer','Self-Funded / Self-Insured','Retirement Services','Affiliates','Other Channels','Consumer / Direct','Internal']}},
+    {field:'dam:brandVersion',label:'Brand Version',disp:'new',action:'NEW FIELD — replaces minimum-rebrand/ and mvp-rebrand/ sub-folder forks. Enables Smart Collections for brand version filtering without parallel folder trees.',risk:'low',
+     cv:{type:'dropdown',count:4,values:['Current Brand','2023 Rebrand (MVP)','2023 Rebrand (Minimum)','Legacy (Pre-2023)']}},
+    {field:'dam:site',label:'Target Site',disp:'new',action:'NEW FIELD — replaces site-specific/ sub-folder hierarchy. Multi-value allows a single asset to target multiple sites simultaneously.',risk:'low',
+     cv:{type:'multiselect',count:6,values:['securian.com','securian-am.com','advisor-portal','employer-portal','sync','brand-portal']}},
+    {field:'dam:region',label:'Market Region',disp:'new',action:'NEW FIELD — supports /canada top-level container separation. Enables independent search, reporting, and replication rules by market. Canada values promote to required in Canada child schema.',risk:'medium',
+     cv:{type:'multiselect',count:4,values:['United States','Canada (English)','Canada (French)','US + Canada'],note:'dam:region = Canada values are required in the Canada child schema'}},
+    {field:'dam:contentChannel',label:'Content Delivery Channel',disp:'new',action:'NEW FIELD — replaces parallel image stores for web, email, social, and print. Multi-value allows one asset to be assigned to multiple output channels.',risk:'low',
+     cv:{type:'multiselect',count:8,values:['Web','Email','Social','Print','Presentation','Video','Advisor Materials','Internal']}},
+    {field:'dam:productLine',label:'Product Program (DAM)',disp:'new',action:'NEW FIELD — replaces product-code folder names (dcs, med, wmg, in5 + product sub-folders). Expanded from 4 folder-derived codes to 14 full product values.',risk:'medium',
+     cv:{type:'multiselect',count:10,values:['Life Insurance','Disability Insurance','Long-Term Care','Annuities','Retirement Plans','Group Benefits','Wealth Management','Institutional','SecureLink Product Family','Eclipse Product Family'],note:'10 values confirmed from folder analysis — cross-reference with wcmProductLine CV values'}},
+    {field:'dam:imageUse',label:'Image Placement Type',disp:'new',action:'NEW FIELD — replaces hero sub-folder types (hp/, sp/, mp/, ip/, ap/). Enables Smart Crop configuration per placement type in Dynamic Media. Single-select per asset.',risk:'low',
+     cv:{type:'dropdown',count:5,values:['Homepage Hero','Subpage Hero','Marketing Page Hero','Interior Page Hero','Application / Enrollment Hero'],note:'Enables Dynamic Media Smart Crop configuration by placement type'}},
+  ]},
+  {id:'tab-newfields-p1',label:'New Fields — Phase 1 (Tags)',fields:10,sys:0,user:10,items:[
+    {field:'wcmBusinessLine',label:'Business Line',disp:'new',action:'NEW FIELD — consolidates 2 duplicate tag namespaces (securian:business-lines + wcm-tags:business-lines). Retire both tag namespaces after schema population (DQ-05).',risk:'medium',
+     cv:{type:'multiselect',count:11,values:['Life Insurance','Annuities','Retirement Plans','Group Benefits','Investment Management / Wealth','Individual Insurance','Institutional','Employee Benefits','Credit & Payment Protection','Banking Products','Other'],note:'Confirm final business line list with business development team'}},
+    {field:'wcmFulfillmentMethod',label:'Fulfillment Method',disp:'new',action:'NEW FIELD — replaces wcm-tags:fulfillment_method. 4 print/digital fulfillment method values.',risk:'low',
+     cv:{type:'dropdown',count:4,values:['[4 values from wcm-tags:fulfillment_method — confirm with Fulfillment/Print team]'],note:'⚠ Values must be confirmed with fulfillment/print operations team'}},
+    {field:'wcmSalesRegion',label:'Sales Region / Territory',disp:'new',action:'NEW FIELD — replaces wcm-tags:group-sales-regions. 51 US state + DC sales territory values. CONDITIONAL — confirm this is distinct from wcmAdditionalStateRestrictions (states approved) vs sales territory assignment.',risk:'medium',
+     cv:{type:'multiselect',count:51,values:['[All 50 US states + DC — same value set as wcmStatesApproved]'],note:'⚠ Confirm this is operationally distinct from wcmAdditionalStateRestrictions before adding as a separate field'}},
+    {field:'wcmDistributionPlatform',label:'Distribution Platform',disp:'new',action:'NEW FIELD — replaces securian:platform-media-vehicles. 15 flat distribution platform values replacing a 6-level tag hierarchy.',risk:'low',
+     cv:{type:'multiselect',count:15,values:['[15 values from securian:platform-media-vehicles tag namespace]'],note:'⚠ Values must be extracted from live tag namespace — confirm 15 active values with distribution team'}},
+    {field:'wcmWebsiteSection',label:'Website Section',disp:'new',action:'NEW FIELD — replaces securian:website depth-6 tag hierarchy. 11 website section values. May also replace cq:tags-sitesection (under review).',risk:'low',
+     cv:{type:'multiselect',count:11,values:['[11 website section values from securian:website tag namespace]'],note:'⚠ Values must be extracted from live securian:website tag namespace'}},
+    {field:'wcmTruFormDepartment',label:'TruForm Department',disp:'new',action:'Same field as in TruForm schema tab. Listed here for cross-reference. 28 department routing values. Blocked on DQ-08 — confirm routing scope before implementing.',risk:'low',
+     cv:{type:'dropdown',count:28,values:['Accounts Payable','Actuarial','Compliance','Finance','Group Claims','Human Resources','Legal','Marketing','Operations','Payroll','Risk Management','Tax','Treasury','Underwriting — Life','Underwriting — Group','Underwriting — Annuity','[+12 additional — confirm with TruForm team]'],note:'See TruForm tab for full value list. Blocked on DQ-08.'}},
+    {field:'wcmAdvisorTerritory',label:'Advisor Territory',disp:'new',action:'NEW FIELD — replaces wcm-tags:advisor territory namespace (~55 tags). BLOCKED — personalization audit required before implementing. Do not configure until DQ-06 is resolved.',risk:'high',
+     cv:{type:'multiselect',count:'~50',values:['FIA (+ regional sub-values)','IA (+ regional sub-values)','Life (+ regional sub-values)','RP (+ regional sub-values)'],note:'⛔ BLOCKED on DQ-06 — values derived from wcm-tags:advisor; personalization dependency audit required first'}},
+    {field:'wcmWebinarType',label:'Webinar Type',disp:'new',action:'NEW FIELD — replaces wcm-tags:webinar-types. 8 advisor learning platform values.',risk:'low',
+     cv:{type:'dropdown',count:8,values:['[8 values from wcm-tags:webinar-types — confirm with Learning & Development team]'],note:'⚠ Values must be confirmed with Learning & Development / Advisor Education team'}},
+    {field:'dam:owningTeam',label:'Owning Team',disp:'new',action:'NEW FIELD — replaces securian:teams tag namespace. 7 internal marketing team values.',risk:'low',
+     cv:{type:'dropdown',count:7,values:['[7 internal marketing team values from securian:teams]'],note:'⚠ Values must be confirmed from securian:teams tag namespace'}},
+    {field:'dam:owningDivision',label:'Owning Division',disp:'new',action:'NEW FIELD — replaces securian:corporate-divisions. 3 corporate division values.',risk:'low',
+     cv:{type:'dropdown',count:3,values:['[3 corporate division values from securian:corporate-divisions]'],note:'⚠ Values must be confirmed from securian:corporate-divisions tag namespace'}},
+  ]},
+  {id:'tab-camera',label:'Camera Data',fields:12,sys:12,user:0,items:[
+    {field:'(all 12 EXIF fields)',label:'EXIF System Data',disp:'retain',action:'All 12 EXIF fields are system-managed and write-protected. Populated from file metadata on ingest. No author governance action required. Suppress Camera Data tab for video assets in the Video child schema.',risk:'none',
+     cv:{type:'text',note:'System-managed: camera make/model, lens, focal length, exposure, f-number, ISO, orientation, resolution, flash — all read-only'}},
+  ]},
+  {id:'tab-orphaned',label:'Unassigned / Orphaned',fields:16,sys:10,user:6,items:[
+    {field:'predictedTags',label:'Predicted Tags',disp:'retain',action:'System — AEM Smart Tags auto-classification. After Phase 1 tag tree cleanup, Sensei will suggest only securian:topics/ and properties/ values. No configuration change needed.',risk:'none',cv:{type:'tags',note:'System — Adobe Sensei auto-suggestion'}},
+    {field:'dq:productReference',label:'Product References',disp:'review',action:'REVIEW — orphaned dq: namespace not present in CV workbook or Dev Spec. Confirm: (a) What does this store? (b) Is "dq:" a Securian-internal namespace? (c) Does it duplicate wcmRelatedProduct? Retire if zero associations confirmed.',risk:'medium',cv:{type:'review',note:'dq: is non-standard namespace — admin must confirm purpose'}},
+    {field:'scrn:adMasterId',label:'Ad Master ID',disp:'review',action:'REVIEW — ONLY field with Mandatory=True in entire JCRUNCH extraction. Confirm: (a) Is this genuinely required for all assets? (b) Is it auto-populated by Admaster integration? (c) If not, authors need clear guidance.',risk:'medium',cv:{type:'text',note:'⚠ Only mandatory field in schema — confirm Admaster integration behavior'}},
+    {field:'dc:iptcKeywords',label:'(blank label)',disp:'review',action:'REVIEW — blank label. Standard Dublin Core IPTC keywords field. Confirm: (a) Actively used? (b) Duplicate of cq:tags or predictedTags? Retire if redundant. If retained, label as "IPTC Keywords".',risk:'low',cv:{type:'review',note:'Blank label — potential duplicate of cq:tags'}},
+    {field:'ytVideoId / ytPlaylistId / ytChannel',label:'YouTube Fields (×3)',disp:'review',action:'REVIEW — YouTube integration fields. Confirm if YouTube connector is active at Securian. If not in use, retire all three fields.',risk:'low',cv:{type:'review',note:'⚠ Retire if YouTube connector is not active'}},
+    {field:'videoDuration / videoCodec / etc.',label:'Video Technical Fields (×6)',disp:'retain',action:'System-managed video technical metadata. Retain. Promoted to visible in the Video child schema.',risk:'none',cv:{type:'text',note:'System-populated: duration, codec, bitrate, frameRate, audioCodec, audioBitrate — read-only'}},
+  ]},
+];
+
+// ── DQ FLAGS ─────────────────────────────────────────────────
+const DQ_FLAGS = [
+  {id:'DQ-01',title:'Typo: "SecrueLink Ultra 7"',risk:'medium',ns:'wcm-tags:related_product',
+   body:'All other SecureLink products use correct spelling (SecureLink Future 9, SecureLink Ultra 5, Future 10). This is a data entry error in the tag title.',
+   resolution:'Correct tag title to "SecureLink Ultra 7" before migrating to the wcmRelatedProduct schema field. If the tag has active asset associations, update the asset metadata value simultaneously.'},
+  {id:'DQ-02',title:'Duplicate Long-Term Care Tags (4 variants)',risk:'medium',ns:'securian:topics/financial-topics',
+   body:'Four tag variants for the same concept: "Long-term care" (canonical), "Long-term care ways to pay" (intentionally distinct), "Long term care" (missing hyphen — DUPLICATE), "Longterm care" (no hyphen or space — DUPLICATE).',
+   resolution:'Retire the two malformed duplicates. Remap any asset associations to the canonical "Long-term care" tag. Retain "Long-term care ways to pay" as an intentionally distinct topic node.'},
+  {id:'DQ-03',title:'Person Name Used as Classification Tag',risk:'low',ns:'securian:topics/insurance-and-protection/kim-anderson',
+   body:'A person\'s name has been used as a content classification tag. Person names are not stable vocabulary — people change roles, leave, or share names.',
+   resolution:'Identify assets tagged with kim-anderson. Reclassify under securian:topics/financial-topics/long-term-care or securian:topics/lifestyle/caregiving. Use IPTC field Iptc4xmpExt:PersonInImage for individual identification in photography/video.'},
+  {id:'DQ-04',title:'Duplicate Kare-11 Campaign Tags',risk:'low',ns:'securian:topics/brand-marketing',
+   body:'Two duplicate tags for the Kare 11 sponsorship: "kare-11" (with hyphen) and "kare11" (without hyphen). Campaign-specific with no ongoing classification value.',
+   resolution:'Run JCRUNCH tag frequency report. If both have zero associations, delete both immediately. If either has active associations, reclassify those assets under securian:topics/brand-marketing/company-news, then retire both. Use wcmCampaignName schema field for future campaign association.'},
+  {id:'DQ-05',title:'Duplicate Business Lines Namespaces',risk:'medium',ns:'securian:business-lines + wcm-tags:business-lines',
+   body:'Both securian:business-lines and wcm-tags:business-lines contain the same business line vocabulary (Life, Annuities, Retirement, Group, Investment Management, etc.). Authors must pick one or the other, producing inconsistent tagging.',
+   resolution:'Run JCRUNCH frequency report on both namespaces. Migrate the higher-association namespace first to wcmBusinessLine schema field. Then migrate the second. Retire both tag namespaces once all assets have wcmBusinessLine populated.'},
+  {id:'DQ-06',title:'wcm-tags:advisor — Personalization Risk',risk:'high',ns:'wcm-tags:advisor/',
+   body:'~55 advisor territory tags (FIA, IA, Life, RP with regional sub-values) may be actively driving personalized content delivery in the advisor portal via Adobe Target audience rules or AEM Context Hub segment definitions.',
+   resolution:'WCM/personalization developer must audit all Adobe Target audience rules and Context Hub configurations BEFORE any retirement action. If personalization dependency confirmed: do NOT retire until rules rewritten to read from wcmAdvisorTerritory schema field (multi-sprint effort). DAM migration may proceed in parallel with dual-tagging.'},
+  {id:'DQ-07',title:'wcm-tags:security — HIGHEST RISK (ACL Rebuild Required)',risk:'critical',ns:'wcm-tags:security/',
+   body:'~200 permission tags (WCM_ACM_*, WCM_Advisor_*, WCM_FIG_*, WCM_Product_*) appear to function as access control flags controlling which user groups can view which content. Retiring these without rebuilding ACLs creates unauthorized content exposure.',
+   resolution:'(1) AEM dev must audit every tag to confirm ACL/CUG/Dispatcher references. (2) Design replacement group-based ACL model for Cloud Service. (3) Build and validate in Stage. (4) THEN retire security namespace in Production. Schedule as the FINAL migration phase.'},
+  {id:'DQ-08',title:'securian:truform Scope Clarification',risk:'low',ns:'securian:truform/',
+   body:'The securian:truform namespace contains 28 internal department names for TruForm routing. Duplicate with wcm-tags:truform_departments.',
+   resolution:'Create wcmTruFormDepartment schema field with 28 department values dropdown. Confirm TruForm routing logic reads from the schema field property path (./jcr:content/metadata/wcmTruFormDepartment) not from cq:tags. If routing is hardcoded to cq:tags, developer code change required before retirement.'},
+];
+
+// ── ROLE MODEL DATA ──────────────────────────────────────────
+const ROLES = [
+  {id:'role-admin',name:'dam-administrators',color:'#dc2626',type:'Admin Group',
+   perms:[
+     {path:'/content/dam',read:'✓',write:'✓',delete:'✓',publish:'✓'},
+     {path:'/_system/*',read:'✓',write:'✓',delete:'✓',publish:'✓'},
+     {path:'Tag Manager',read:'✓',write:'✓',delete:'✓',publish:'—'},
+   ],
+   note:'Full DAM administrative access. Required for Tag Manager operations, schema editor, folder permission assignment. Assign only to DAM administrators and Track 3 migration team.'},
+  {id:'role-content',name:'dam-content-authors',color:'#059669',type:'Author Group',
+   perms:[
+     {path:'/content/dam/images',read:'✓',write:'✓',delete:'—',publish:'✓'},
+     {path:'/content/dam/documents',read:'✓',write:'✓',delete:'—',publish:'✓'},
+     {path:'/content/dam/video',read:'✓',write:'✓',delete:'—',publish:'✓'},
+     {path:'/_system/*',read:'—',write:'—',delete:'—',publish:'—'},
+   ],
+   note:'Standard DAM content author role. Can upload, edit metadata, and publish assets. Cannot delete assets or access system folders. Cannot modify tag definitions.'},
+  {id:'role-advisor',name:'dam-advisor-channel',color:'#7c3aed',type:'Channel Group',
+   perms:[
+     {path:'/content/dam/images/photography',read:'✓',write:'—',delete:'—',publish:'—'},
+     {path:'/content/dam/documents/marketing',read:'✓',write:'—',delete:'—',publish:'—'},
+     {path:'Advisor-gated content',read:'✓',write:'—',delete:'—',publish:'—'},
+   ],
+   note:'Read-only access for advisor portal content consumers. Replaces WCM_Advisor_* and WCM_ACM_* security tag gating. This group must be populated based on the new wcmAdvisorTerritory schema field values.'},
+  {id:'role-group',name:'dam-group-channel',color:'#d97706',type:'Channel Group',
+   perms:[
+     {path:'/content/dam/documents/marketing',read:'✓',write:'—',delete:'—',publish:'—'},
+     {path:'Group/employer content',read:'✓',write:'—',delete:'—',publish:'—'},
+   ],
+   note:'Read-only access for group benefits and employer channel content. Replaces WCM_FIG_* security tag gating.'},
+  {id:'role-workfront',name:'dam-workfront-service',color:'#6b7280',type:'Service Account',
+   perms:[
+     {path:'/content/dam/_system/workfront',read:'✓',write:'✓',delete:'—',publish:'—'},
+     {path:'/content/dam/images',read:'✓',write:'✓',delete:'—',publish:'—'},
+   ],
+   note:'Service account for Workfront DAM connector. Scoped write access to Workfront staging folder and image upload paths only. Do not assign human users to this group.'},
+  {id:'role-regulatory',name:'dam-regulatory-authors',color:'#0284c7',type:'Compliance Group',
+   perms:[
+     {path:'/content/dam/documents/regulatory',read:'✓',write:'✓',delete:'—',publish:'✓'},
+     {path:'/content/dam/regulatory',read:'✓',write:'✓',delete:'—',publish:'✓'},
+     {path:'Other DAM paths',read:'✓',write:'—',delete:'—',publish:'—'},
+   ],
+   note:'Regulatory and compliance team authors. Write access scoped to regulatory document paths. Read-only on all other DAM content. Critical for FSRA/AMF compliance isolation of Canadian regulatory content.'},
+];
+
+// ── DETAIL PANE DATA ─────────────────────────────────────────
+const DETAILS = {
+  'acl-wcmacm':{type:'ACL Migration',badge:'security',title:'WCM_ACM_* Tag Pattern','subtitle':'~50 tags → group-dam-advisors',
+   risk:'high',body:`<h4>Current Behavior</h4><p>WCM_ACM_* tags appear to function as Closed User Group (CUG) access control flags for Advisor Content Management — restricting which content is visible to internal advisory roles. These tags are evaluated at request time by AEM's permission evaluation engine.</p><h4>Migration Action</h4><p>Replace with group-based ACL on /content/dam paths scoped to advisor content. The group-dam-advisors group is granted read access to advisor-gated paths via AEM Cloud Service's Repoinit-based permission declarations.</p><h4>Prerequisites</h4><p>Full ACL audit must confirm which paths are currently gated by WCM_ACM_* tags. New group-based ACL must be built and validated in Stage before these tags are retired in Production.`},
+  'acl-advisor':{type:'ACL Migration',badge:'critical',title:'WCM_Advisor_* Tag Pattern','subtitle':'~55 tags → group-dam-advisor-territory + DQ-06',
+   risk:'critical',body:`<h4>Current Behavior</h4><p>WCM_Advisor_* tags encode advisor territory assignments (FIA, IA, Life, RP regions) and appear to serve dual purpose: both as DAM content access flags AND as personalization targeting inputs for the advisor portal.</p><h4>Critical Risk — DQ-06</h4><p>If these tag values are being read by Adobe Target audience rules or AEM Context Hub segment definitions to drive personalized advisor portal content delivery, retiring them before updating personalization configuration will silently break the advisor experience. No functional test failure will indicate this — personalization simply stops working.</p><h4>Required Action</h4><p>WCM developer must audit all Adobe Target audience rules and Context Hub configurations to confirm or deny personalization dependency before ANY retirement action is taken on this namespace.</p>`},
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  UI ENGINE
+// ═══════════════════════════════════════════════════════════════
+function switchPanel(name, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+  closeDetail();
+}
+
+function showFolderView(mode, btn){
+  ['legacy','proposed','table'].forEach(m=>{
+    const el = document.getElementById('folder-'+m+'-view');
+    if(el) el.style.display = m===mode?'':'none';
+  });
+  document.querySelectorAll('.htt-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+}
+
+// ── DETAIL PANE ──────────────────────────────────────────────
+function openDetail(id){
+  const d = DETAILS[id];
+  if(!d) return;
+  const colors = {merge:'#6366f1',retain:'#059669',move:'#d97706',split:'#ea580c',delete:'#dc2626',new:'#0284c7',schema:'#7c3aed',system:'#6b7280',review:'#b45309',critical:'#dc2626',security:'#9d174d',enforce:'#1d4ed8',retire:'#dc2626',label:'#92400e'};
+  const badge = document.getElementById('dp-type-badge');
+  badge.textContent = d.type;
+  badge.style.background = (colors[d.badge]||'#6b7280')+'22';
+  badge.style.color = colors[d.badge]||'#6b7280';
+  document.getElementById('dp-title').textContent = d.title;
+  document.getElementById('dp-subtitle').textContent = d.subtitle||'';
+  const riskEl = document.getElementById('dp-risk');
+  if(riskEl) riskEl.remove();
+  const body = document.getElementById('dp-body');
+  body.innerHTML = '';
+  if(d.risk&&d.risk!=='none'){
+    const r = document.createElement('div');
+    r.id='dp-risk';
+    r.className=d.risk;
+    const rText={low:'🟢 Low Risk',medium:'🟡 Medium Risk',high:'🟠 High Risk',critical:'🔴 Critical Risk — Blocker'};
+    r.textContent=rText[d.risk]||d.risk;
+    body.appendChild(r);
+  }
+  if(d.old){const el=document.createElement('div');el.className='dp-path old';el.innerHTML='<span style="color:var(--c-delete);font-size:10px;font-weight:700;display:block;margin-bottom:3px">LEGACY PATH</span>'+d.old;body.appendChild(el);}
+  if(d.newp){const el=document.createElement('div');el.className='dp-path new';el.innerHTML='<span style="color:var(--c-retain);font-size:10px;font-weight:700;display:block;margin-bottom:3px">PROPOSED PATH</span>'+d.newp;body.appendChild(el);}
+  body.insertAdjacentHTML('beforeend', d.body||'');
+  document.getElementById('detail-pane').classList.add('open');
+}
+
+function openFolderDetail(folder){
+  const f = FOLDERS.find(x=>x.id===folder);
+  if(!f) return;
+  const colors = {merge:'#6366f1',retain:'#059669',move:'#d97706',split:'#ea580c',delete:'#dc2626',new:'#0284c7'};
+  const badge = document.getElementById('dp-type-badge');
+  badge.textContent = f.change.toUpperCase();
+  badge.style.background = (colors[f.change]||'#6b7280')+'22';
+  badge.style.color = colors[f.change]||'#6b7280';
+  document.getElementById('dp-title').textContent = '/content/dam/'+f.legacy;
+  document.getElementById('dp-subtitle').textContent = 'Folder Structure Change';
+  const body = document.getElementById('dp-body');
+  body.innerHTML = '';
+  const riskColors={critical:'#9d174d',high:'#991b1b',medium:'#92400e',low:'#065f46'};
+  const riskBg={critical:'#fdf2f8',high:'#fff1f2',medium:'#fffbeb',low:'#f0fdf4'};
+  const riskEl = document.createElement('div');
+  riskEl.id='dp-risk';
+  riskEl.style.background=riskBg[f.risk]||riskBg.low;
+  riskEl.style.color=riskColors[f.risk]||riskColors.low;
+  riskEl.className=f.risk;
+  riskEl.textContent={critical:'🔴 Critical Risk — Blocker',high:'🟠 High Risk — Coordinate with dev team',medium:'🟡 Medium Risk — Plan ahead',low:'🟢 Low Risk — Standard migration'}[f.risk];
+  body.appendChild(riskEl);
+  const op = document.createElement('div');op.className='dp-path old';
+  op.innerHTML='<span style="color:var(--c-delete);font-size:10px;font-weight:700;display:block;margin-bottom:3px">LEGACY PATH</span>'+f.old;body.appendChild(op);
+  const np = document.createElement('div');np.className='dp-path new';
+  np.innerHTML='<span style="color:var(--c-retain);font-size:10px;font-weight:700;display:block;margin-bottom:3px">PROPOSED PATH</span>'+f.newp;body.appendChild(np);
+  const h4 = document.createElement('h4');h4.textContent='Structural Issue';body.appendChild(h4);
+  const issue = document.createElement('p');issue.style.color='#92400e';issue.textContent=f.issue;body.appendChild(issue);
+  const h5 = document.createElement('h4');h5.textContent='Change Justification';body.appendChild(h5);
+  const j = document.createElement('p');j.textContent=f.just;body.appendChild(j);
+  document.getElementById('detail-pane').classList.add('open');
+}
+
+function openTagDetail(tagId){
+  const findTag = (arr, id) => {
+    for(const t of arr){
+      if(t.id===id) return t;
+      if(t.children){const f=findTag(t.children,id);if(f)return f;}
+    }return null;
+  };
+  const t = findTag(TAG_NAMESPACES, tagId);
+  if(!t) return;
+  const dispColors={retain:'#059669',schema:'#7c3aed',system:'#6b7280',review:'#b45309',critical:'#9d174d','mixed':'#d97706','mixed-high':'#dc2626'};
+  const badge = document.getElementById('dp-type-badge');
+  badge.textContent = t.disp.toUpperCase();
+  badge.style.background = (dispColors[t.disp]||'#6b7280')+'22';
+  badge.style.color = dispColors[t.disp]||'#6b7280';
+  document.getElementById('dp-title').textContent = t.name;
+  document.getElementById('dp-subtitle').textContent = '~'+t.tags+' tags · Target: '+t.target;
+  const body = document.getElementById('dp-body');
+  body.innerHTML = '';
+  const riskLevels={critical:'critical',high:'high',medium:'medium',low:'low',none:'low'};
+  const riskLabels={critical:'🔴 CRITICAL — Migration Blocker',high:'🟠 High Risk',medium:'🟡 Medium Risk',low:'🟢 Low Risk',none:'🟢 No Risk'};
+  const riskEl = document.createElement('div');
+  riskEl.className='dp-risk '+(riskLevels[t.risk]||'low');
+  riskEl.textContent=riskLabels[t.risk]||'Low Risk';
+  body.appendChild(riskEl);
+  const h4 = document.createElement('h4');h4.textContent='Classification Justification';body.appendChild(h4);
+  const j = document.createElement('p');j.textContent=t.just;body.appendChild(j);
+  if(t.target&&t.target!=='AEM system — do not modify'&&t.disp==='schema'){
+    const h5=document.createElement('h4');h5.textContent='Target Schema Field';body.appendChild(h5);
+    const tp=document.createElement('div');tp.className='dp-path new';
+    tp.innerHTML='<span style="color:var(--c-retain);font-size:10px;font-weight:700;display:block;margin-bottom:3px">MIGRATE TO</span>'+t.target;body.appendChild(tp);
+  }
+  document.getElementById('detail-pane').classList.add('open');
+}
+
+function openMetaDetail(field, tabLabel, item){
+  const dispColors={retain:'#059669',enforce:'#1d4ed8',retire:'#dc2626',review:'#b45309',label:'#92400e',new:'#0284c7'};
+  const badge = document.getElementById('dp-type-badge');
+  badge.textContent = item.disp.toUpperCase();
+  badge.style.background = (dispColors[item.disp]||'#6b7280')+'22';
+  badge.style.color = dispColors[item.disp]||'#6b7280';
+  document.getElementById('dp-title').textContent = item.label+' ('+field+')';
+  document.getElementById('dp-subtitle').textContent = tabLabel;
+  const body = document.getElementById('dp-body');
+  body.innerHTML = '';
+  const fp=document.createElement('div');fp.className='dp-path';
+  fp.innerHTML='<span style="color:var(--text-muted);font-size:10px;font-weight:700;display:block;margin-bottom:3px">JCR PROPERTY PATH</span>./jcr:content/metadata/'+field;body.appendChild(fp);
+  const h4=document.createElement('h4');h4.textContent='Recommended Action';body.appendChild(h4);
+  const p=document.createElement('p');p.textContent=item.action;body.appendChild(p);
+  document.getElementById('detail-pane').classList.add('open');
+}
+
+function openDQDetail(id){
+  const dq = DQ_FLAGS.find(d=>d.id===id);
+  if(!dq) return;
+  const riskColors={critical:'#9d174d',high:'#991b1b',medium:'#92400e',low:'#065f46'};
+  const badge = document.getElementById('dp-type-badge');
+  badge.textContent = 'DQ FLAG';
+  badge.style.background = (riskColors[dq.risk]||'#6b7280')+'22';
+  badge.style.color = riskColors[dq.risk]||'#6b7280';
+  document.getElementById('dp-title').textContent = dq.id+' — '+dq.title;
+  document.getElementById('dp-subtitle').textContent = dq.ns;
+  const body = document.getElementById('dp-body');
+  body.innerHTML = '';
+  const riskEl=document.createElement('div');
+  riskEl.className='dp-risk '+dq.risk;
+  riskEl.textContent={critical:'🔴 CRITICAL — Migration Blocker',high:'🟠 High Risk',medium:'🟡 Medium Risk',low:'🟢 Low Risk'}[dq.risk];
+  body.appendChild(riskEl);
+  const h4=document.createElement('h4');h4.textContent='Issue';body.appendChild(h4);
+  const p=document.createElement('p');p.textContent=dq.body;body.appendChild(p);
+  const h5=document.createElement('h4');h5.textContent='Recommended Resolution';body.appendChild(h5);
+  const p2=document.createElement('p');p2.textContent=dq.resolution;body.appendChild(p2);
+  document.getElementById('detail-pane').classList.add('open');
+}
+
+function openRoleDetail(id){
+  const r = ROLES.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('dp-type-badge').textContent = r.type.toUpperCase();
+  document.getElementById('dp-type-badge').style.background = r.color+'22';
+  document.getElementById('dp-type-badge').style.color = r.color;
+  document.getElementById('dp-title').textContent = r.name;
+  document.getElementById('dp-subtitle').textContent = 'Proposed AEM Cloud Service Group';
+  const body = document.getElementById('dp-body');
+  body.innerHTML = '';
+  const h4=document.createElement('h4');h4.textContent='Group Notes';body.appendChild(h4);
+  const p=document.createElement('p');p.textContent=r.note;body.appendChild(p);
+  const h5=document.createElement('h4');h5.textContent='Permission Scope';body.appendChild(h5);
+  r.perms.forEach(perm=>{
+    const row=document.createElement('div');row.style.cssText='padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:12px';
+    row.innerHTML=`<div class="mono" style="color:var(--gray-700);margin-bottom:3px">${perm.path}</div><div style="display:flex;gap:16px;color:var(--text-muted)"><span>Read: <strong style="color:${perm.read==='✓'?'#059669':'#dc2626'}">${perm.read}</strong></span><span>Write: <strong style="color:${perm.write==='✓'?'#059669':'#dc2626'}">${perm.write}</strong></span><span>Delete: <strong style="color:${perm.delete==='✓'?'#059669':'#dc2626'}">${perm.delete}</strong></span><span>Publish: <strong style="color:${perm.publish==='✓'?'#059669':'#dc2626'}">${perm.publish}</strong></span></div>`;
+    body.appendChild(row);
+  });
+  document.getElementById('detail-pane').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detail-pane').classList.remove('open');
+}
+
+// ── SEARCH / FILTER ──────────────────────────────────────────
+function searchTable(inputId, tbodyId){
+  const q = document.getElementById(inputId).value.toLowerCase();
+  document.querySelectorAll('#'+tbodyId+' tr').forEach(r=>{
+    r.style.display = r.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+let folderFilter = 'all';
+function filterFolders(type, btn){
+  folderFilter = type;
+  document.querySelectorAll('#folder-filter-row .fc').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#folder-tbody tr').forEach(r=>{
+    r.style.display = (type==='all'||r.dataset.change===type)?'':'none';
+  });
+}
+
+function filterDQ(level, btn){
+  document.querySelectorAll('.filter-row .fc').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.dq-card').forEach(c=>{
+    c.style.display=(level==='all'||c.dataset.risk===level)?'':'none';
+  });
+}
+
+// ── RENDER FUNCTIONS ─────────────────────────────────────────
+function renderFolderTable(){
+  const tbody = document.getElementById('folder-tbody');
+  tbody.innerHTML = '';
+  const changeLabels={merge:'MERGE',retain:'RETAIN',move:'MOVE',split:'SPLIT',delete:'DELETE'};
+  FOLDERS.forEach(f=>{
+    const tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.dataset.change = f.change;
+    tr.onclick = ()=>openFolderDetail(f.id);
+    const riskPill={critical:'risk-crit',high:'risk-high',medium:'risk-med',low:'risk-low'}[f.risk]||'risk-low';
+    tr.innerHTML = `<td class="mono">/content/dam/${f.legacy}</td>
+      <td><span class="pill ${f.change}">${changeLabels[f.change]||f.change}</span></td>
+      <td class="mono" style="font-size:11px;color:var(--text-muted)">${f.proposed}</td>
+      <td style="font-size:12px;max-width:200px">${f.issue}</td>
+      <td><span class="${riskPill}">${f.risk.toUpperCase()}</span></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildCVHtml(cv){
+  if(!cv) return '';
+  const typeLabel={dropdown:'Single-select',multiselect:'Multi-select',checkbox:'Checkbox',date:'Date Picker',text:'Free Text',tags:'Tag Picker',review:'Pending Review','n/a':'N/A'};
+  const typeClass={dropdown:'dropdown',multiselect:'multiselect',checkbox:'checkbox',date:'',text:'',tags:'',review:'',n:'n/a'};
+  const tClass = typeClass[cv.type]||'';
+  const tLabel = typeLabel[cv.type]||cv.type||'';
+  if(!cv.values && !cv.note) return `<div class="cv-wrap"><div class="cv-header"><span class="cv-type-tag ${tClass}">${tLabel}</span></div></div>`;
+
+  const SHOW = cv.showFirst||8;
+  let chipsHtml = '';
+  if(cv.values && cv.values.length){
+    const visible = cv.values.slice(0,SHOW);
+    const hidden  = cv.values.slice(SHOW);
+    chipsHtml = '<div class="cv-chips">';
+    visible.forEach(v=>{ chipsHtml += `<span class="cv-chip">${v}</span>`; });
+    if(hidden.length){
+      const hiddenStr = hidden.map(v=>`<span class="cv-chip">${v}</span>`).join('');
+      chipsHtml += `<span class="cv-more" onclick="this.previousSibling&&this.remove();this.parentNode.insertAdjacentHTML('beforeend','${hiddenStr.replace(/'/g,"&#39;")}')">+${hidden.length} more</span>`;
+    }
+    chipsHtml += '</div>';
+  }
+  const noteHtml = cv.note ? `<span class="cv-chip note" style="margin-top:3px">${cv.note}</span>` : '';
+  const countBadge = cv.count ? `<span class="cv-count-badge">${cv.count} values</span>` : '';
+  return `<div class="cv-wrap">
+    <div class="cv-header">
+      ${tClass?`<span class="cv-type-tag ${tClass}">${tLabel}</span>`:`<span style="font-size:10px;color:var(--text-muted)">${tLabel}</span>`}
+      ${countBadge}
+    </div>
+    ${chipsHtml}
+    ${noteHtml?`<div style="margin-top:4px">${noteHtml}</div>`:''}
+  </div>`;
+}
+
+function renderMetaTabs(){
+  const tabBar = document.getElementById('aem-tab-bar');
+  const panels = document.getElementById('aem-tab-panels');
+  tabBar.innerHTML=''; panels.innerHTML='';
+  META_TABS.forEach((tab,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'aem-tab'+(i===0?' active':'');
+    btn.textContent = tab.label;
+    btn.onclick = ()=>{
+      document.querySelectorAll('.aem-tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.aem-tab-content').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('aem-panel-'+tab.id).classList.add('active');
+    };
+    tabBar.appendChild(btn);
+    const panel = document.createElement('div');
+    panel.id = 'aem-panel-'+tab.id;
+    panel.className = 'aem-tab-content'+(i===0?' active':'');
+    let rows = '';
+    tab.items.forEach(item=>{
+      const dPill = `<span class="pill ${item.disp}">${item.disp.toUpperCase()}</span>`;
+      const rPill = item.risk==='none'?'':`<span class="risk-${item.risk==='medium'?'med':item.risk}">${item.risk.toUpperCase()}</span>`;
+      const cvHtml = buildCVHtml(item.cv);
+      // safe JSON for onclick — strip cv.values from the serialized item to avoid huge strings in attr
+      const safeItem = Object.assign({},item); delete safeItem.cv;
+      rows += `<tr class="clickable" onclick="openMetaDetail('${item.field.replace(/'/g,"\\'")}','${tab.label.replace(/'/g,"\\'")}',${JSON.stringify(safeItem).replace(/'/g,"\\'")})">
+        <td class="mono" style="white-space:nowrap">${item.field}</td>
+        <td style="font-weight:500;font-size:12.5px">${item.label}</td>
+        <td>${dPill}</td>
+        <td style="font-size:12px;color:var(--text-muted);min-width:180px;max-width:220px">${item.action}</td>
+        <td style="min-width:220px">${cvHtml}</td>
+        <td>${rPill}</td>
+      </tr>`;
+    });
+    panel.innerHTML = `<div style="padding:10px 14px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:12px;color:var(--text-muted)">
+        <strong>${tab.fields}</strong> fields · <strong>${tab.sys}</strong> system-managed · <strong>${tab.user}</strong> user-editable
+      </div>
+      <div style="overflow-x:auto;max-height:480px;overflow-y:auto">
+      <table class="ctbl"><thead><tr><th>JCR Property</th><th>Label</th><th>Disposition</th><th>Action</th><th>Field Type &amp; CV Values</th><th>Risk</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+    panels.appendChild(panel);
+  });
+}
+
+function renderTagTree(containerId, namespaces, isLegacy){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const dispIcon={retain:'🟢',schema:'🔵',system:'⚫','mixed':'🟡','mixed-high':'🔴',review:'🟡',critical:'🔴'};
+  const dispClass={retain:'retain',schema:'schema',system:'system-node','mixed':'review-node','mixed-high':'critical-node',review:'review-node',critical:'critical-node'};
+
+  function renderNode(node, depth){
+    const div = document.createElement('div');
+    div.className = 'tree-node';
+    div.onclick = (e)=>{e.stopPropagation(); openTagDetail(node.id);};
+    const indent = '  '.repeat(depth);
+    const icon = dispIcon[node.disp]||'⚪';
+    const cls = dispClass[node.disp]||'';
+    const pillDisp = isLegacy? node.disp : node.disp;
+    div.innerHTML = `
+      <span class="tn-indent">${depth>0?'└─':''}</span>
+      <span class="tn-icon">${icon}</span>
+      <span class="tn-name ${cls}">${node.name}</span>
+      <span class="tn-count">${node.tags}</span>
+      <span class="tn-pill"><span class="pill ${node.disp}">${node.disp.toUpperCase()}</span></span>`;
+    div.style.paddingLeft = (depth*16+6)+'px';
+    container.appendChild(div);
+    if(node.children && isLegacy){
+      node.children.forEach(c=>renderNode(c, depth+1));
+    }
+  }
+  namespaces.forEach(n=>renderNode(n, 0));
+}
+
+function renderNewTagTree(){
+  const container = document.getElementById('new-tag-tree');
+  container.innerHTML = '';
+  const retainedTree = [
+    {name:'properties/',icon:'🟢',desc:'Visual asset properties',notes:'~8 tags retained',children:[
+      {name:'properties:orientation/',children:[{name:'landscape'},{name:'portrait'},{name:'square'}]},
+      {name:'properties:style/',children:[{name:'color'},{name:'monochrome'},{name:'high-contrast [NEW]',new:true}]},
+    ]},
+    {name:'securian:topics/',icon:'🟢',desc:'Subject matter classification',notes:'~50 tags retained',children:[
+      {name:'financial-topics/',children:[
+        {name:'retirement'},{name:'investing'},{name:'insurance-and-protection'},
+        {name:'life-insurance'},{name:'long-term-care'},{name:'disability-income'},
+        {name:'annuities'},{name:'wealth-management'},{name:'estate-planning'},
+        {name:'benefits-at-work'},{name:'group-benefits [NEW]',new:true},{name:'tax-planning [NEW]',new:true},
+      ]},
+      {name:'lifestyle/',children:[
+        {name:'life-events-and-milestones'},{name:'career-changes'},{name:'marriage'},
+        {name:'home-ownership'},{name:'health-and-aging'},{name:'caregiving [NEW]',new:true},
+      ]},
+      {name:'business-insights/',children:[
+        {name:'continuity-planning'},{name:'succession-planning'},
+        {name:'employee-benefits'},{name:'executive-benefits [NEW]',new:true},
+      ]},
+      {name:'brand-marketing/',children:[
+        {name:'company-news'},{name:'financial-strength'},{name:'community-giving'},{name:'thought-leadership-b2b'},
+      ]},
+    ]},
+    {name:'wcm-tags:feature-articles/',icon:'🔵',desc:'WCM pages ONLY — not DAM assets',notes:'~150 tags · no change',children:[]},
+  ];
+
+  function renderNewNode(node, depth){
+    const div = document.createElement('div');
+    div.style.paddingLeft=(depth*14+6)+'px';
+    div.style.cssText += ';display:flex;align-items:center;gap:5px;padding:'+(4)+'px '+(depth*14+6)+'px;font-size:12px;border-radius:5px;';
+    if(node.new){div.style.color='#0284c7';div.style.fontWeight='500';}
+    else if(depth===0){div.style.color='#065f46';div.style.fontWeight='700';}
+    else{div.style.color='#374151';}
+    const bullet = depth===0?'🟢':depth===1?'└─':'  ·';
+    div.textContent = (depth>0?'  '.repeat(depth-1)+'└─ ':'')+node.name+(node.notes?' · '+node.notes:'');
+    div.style.color = node.new?'#0284c7':depth===0?'#065f46':'#374151';
+    div.style.fontWeight = depth===0?'700':'400';
+    container.appendChild(div);
+    if(node.children) node.children.forEach(c=>renderNewNode(c, depth+1));
+  }
+  retainedTree.forEach(n=>renderNewNode(n,0));
+}
+
+function renderDQGrid(){
+  const grid = document.getElementById('dq-grid');
+  DQ_FLAGS.forEach(dq=>{
+    const riskBg={critical:'#fdf2f8',high:'#fff1f2',medium:'#fffbeb',low:'#f0fdf4'};
+    const riskColor={critical:'#9d174d',high:'#991b1b',medium:'#92400e',low:'#065f46'};
+    const riskLabel={critical:'🔴 CRITICAL',high:'🟠 HIGH',medium:'🟡 MEDIUM',low:'🟢 LOW'};
+    const card = document.createElement('div');
+    card.className = 'dq-card';
+    card.dataset.risk = dq.risk;
+    card.onclick = ()=>openDQDetail(dq.id);
+    card.innerHTML = `<div class="dq-card-header">
+      <span class="dq-id" style="background:${riskBg[dq.risk]};color:${riskColor[dq.risk]}">${dq.id}</span>
+      <span style="font-size:12.5px;font-weight:600">${dq.title}</span>
+      <span style="margin-left:auto;font-size:10px;font-weight:700;color:${riskColor[dq.risk]}">${riskLabel[dq.risk]}</span>
+    </div>
+    <div class="dq-card-body">${dq.body.substring(0,130)}… <span style="color:var(--sec-bright);font-size:12px">View resolution →</span></div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderRoles(){
+  const grid = document.getElementById('role-grid');
+  ROLES.forEach(r=>{
+    const card = document.createElement('div');
+    card.className = 'role-card';
+    card.style.cursor='pointer';
+    card.onclick=()=>openRoleDetail(r.id);
+    let permsHtml = r.perms.map(p=>`<div class="role-perm">
+      <span class="mono" style="font-size:11px">${p.path}</span>
+      <div style="display:flex;gap:8px;font-size:11px">
+        <span>${p.read==='✓'?'<span class="perm-allow">R✓</span>':'<span class="perm-deny">R✗</span>'}</span>
+        <span>${p.write==='✓'?'<span class="perm-allow">W✓</span>':'<span class="perm-deny">W✗</span>'}</span>
+        <span>${p.delete==='✓'?'<span class="perm-allow">D✓</span>':'<span class="perm-deny">D✗</span>'}</span>
+      </div>
+    </div>`).join('');
+    card.innerHTML=`<div class="role-card-header">
+      <div class="role-dot" style="background:${r.color}"></div>
+      <span style="font-size:13px;font-weight:600">${r.name}</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--text-muted)">${r.type}</span>
+    </div>
+    <div class="role-card-body">${permsHtml}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── HIERARCHY TREE DATA ───────────────────────────────────────
+const LEGACY_TREE = [
+  {id:'f-s-vid',name:'s-vid',change:'merge',icon:'📹',label:'Video by audience code',children:[
+    {name:'fi/',change:'audience-sub',icon:'📂',label:'Financial Intermediary channel'},
+    {name:'am/',change:'audience-sub',icon:'📂',label:'Asset Management channel'},
+    {name:'ia/',change:'audience-sub',icon:'📂',label:'Independent Advisor channel'},
+    {name:'ib/',change:'audience-sub',icon:'📂',label:'Independent Broker-Dealer'},
+    {name:'bd/',change:'audience-sub',icon:'📂',label:'Broker-Dealer Captive'},
+    {name:'grp/',change:'audience-sub',icon:'📂',label:'Group/Employer channel'},
+    {name:'sf/',change:'audience-sub',icon:'📂',label:'Self-Funded/Self-Insured'},
+    {name:'rs/',change:'audience-sub',icon:'📂',label:'Retirement Services'},
+    {name:'aff/',change:'audience-sub',icon:'📂',label:'Affiliates channel'},
+  ]},
+  {id:'f-s-doc',name:'s-doc',change:'merge',icon:'📄',label:'Branded docs by audience code',children:[
+    {name:'fi/',change:'audience-sub',icon:'📂',label:'Financial Intermediary docs'},
+    {name:'am/',change:'audience-sub',icon:'📂',label:'Asset Management docs'},
+    {name:'ia/',change:'audience-sub',icon:'📂',label:'Independent Advisor docs'},
+    {name:'[+ 6 more audience sub-folders]',change:'audience-sub',icon:'…',label:'Additional audience-coded sub-folders'},
+  ]},
+  {id:'f-form',name:'form',change:'merge',icon:'📋',label:'Marketing & compliance forms',children:[
+    {name:'fi/',change:'audience-sub',icon:'📂',label:'Financial Intermediary forms'},
+    {name:'am/',change:'audience-sub',icon:'📂',label:'Asset Management forms'},
+    {name:'[+ audience sub-folders]',change:'audience-sub',icon:'…',label:'Audience-coded form sub-folders'},
+  ]},
+  {id:'f-s-frag',name:'s-frag',change:'merge',icon:'🧩',label:'Content fragments (advisors, contacts)'},
+  {id:'f-formsanddocs',name:'formsanddocuments',change:'retain',icon:'⚙️',label:'AEM Forms output [SYSTEM]',children:[
+    {name:'themes/',change:'system',icon:'🎨',label:'AEM Forms theme assets'},
+  ]},
+  {id:'f-s-form',name:'s-form',change:'merge',icon:'📋',label:'Secondary form store by audience',children:[
+    {name:'[audience sub-folders]',change:'audience-sub',icon:'…',label:'Audience-coded sub-folders'},
+  ]},
+  {id:'f-doc',name:'doc',change:'merge',icon:'📄',label:'Generic document store'},
+  {id:'f-vtt',name:'_VTT',change:'move',icon:'📝',label:'Closed caption / VTT files — uppercase violates naming standard'},
+  {id:'f-int',name:'int',change:'split',icon:'🗂️',label:'Internal docs & forms mixed — no content-type separation',children:[
+    {name:'doc/',change:'split',icon:'📄',label:'Internal documents (mixed with forms)'},
+    {name:'form/',change:'split',icon:'📋',label:'Internal forms (mixed with docs)'},
+  ]},
+  {id:'f-s-reg',name:'s-reg',change:'merge',icon:'⚖️',label:'Securian regulatory docs — duplicate of /reg'},
+  {id:'f-reg',name:'reg',change:'merge',icon:'⚖️',label:'Regulatory documents (prospectus, performance)'},
+  {id:'f-creative',name:'creative-assets',change:'merge',icon:'🎨',label:'Creative team asset store — duplicates /img & /video',children:[
+    {name:'img/',change:'merge',icon:'🖼️',label:'Creative photography — parallel to /img'},
+    {name:'video/',change:'merge',icon:'📹',label:'Creative video — parallel to /video'},
+    {name:'a-pic/',change:'merge',icon:'🖼️',label:'Additional photography sub-store'},
+  ]},
+  {id:'f-templates',name:'templates',change:'merge',icon:'📐',label:'Mixed WCM page templates + DAM asset templates',children:[
+    {name:'email/',change:'merge',icon:'✉️',label:'Email image templates → /images'},
+    {name:'[WCM templates]',change:'review',icon:'🔍',label:'WCM templates — team review required'},
+  ]},
+  {id:'f-fdthemes',name:'formsanddocuments-themes',change:'retain',icon:'⚙️',label:'AEM Forms themes [SYSTEM]'},
+  {id:'f-video',name:'video',change:'merge',icon:'📹',label:'General video — duplicates s-vid'},
+  {id:'f-img',name:'img',change:'retain',icon:'🖼️',label:'Primary image store — LARGEST repository',children:[
+    {name:'pic/',change:'retain',icon:'📸',label:'Photography'},
+    {name:'dp/',change:'retain',icon:'🖥️',label:'Digital pages'},
+    {name:'hp/',change:'merge',icon:'🏠',label:'Homepage — encode in dam:imageUse metadata'},
+    {name:'sp/',change:'merge',icon:'📱',label:'Subpage — encode in dam:imageUse metadata'},
+    {name:'mp/',change:'merge',icon:'📄',label:'Marketing page — encode in dam:imageUse metadata'},
+    {name:'email/',change:'retain',icon:'✉️',label:'Email images'},
+    {name:'social/',change:'retain',icon:'💬',label:'Social media images'},
+    {name:'ig/',change:'retain',icon:'📊',label:'Infographics'},
+    {name:'dw/',change:'rename',icon:'📈',label:'Data viz — ampersand removed from "charts-and-graphs"'},
+    {name:'ca/',change:'move',icon:'🍁',label:'Canadian content → /canada top-level container'},
+    {name:'brand/',change:'move',icon:'™️',label:'Brand assets → /brand container'},
+  ]},
+  {id:'f-fragments',name:'fragments',change:'retain',icon:'🧩',label:'Content fragments — designated primary container'},
+  {id:'f-securian',name:'securian',change:'merge',icon:'🏢',label:'Securian web assets — deeply nested, brand-era sub-folders',children:[
+    {name:'web-assets/',change:'merge',icon:'🌐',label:'Site-specific web assets'},
+    {name:'web-assets/brand/',change:'merge',icon:'™️',label:'Brand assets → /brand'},
+    {name:'web-assets/[era]-rebrand/',change:'delete',icon:'🗑️',label:'Brand era in folder name — use dam:brandVersion field'},
+    {name:'ca/',change:'move',icon:'🍁',label:'Canadian content → /canada'},
+  ]},
+  {id:'f-tech',name:'tech',change:'move',icon:'⚙️',label:'Technical/developer assets — should be isolated'},
+  {id:'f-uploads',name:'uploads',change:'delete',icon:'🗑️',label:'AD HOC STAGING — used as permanent storage. AUDIT REQUIRED.'},
+  {id:'f-idoc',name:'i-doc',change:'merge',icon:'📄',label:'Internal docs — redundant parallel to /int/doc'},
+  {id:'f-mktops',name:'marketing-ops',change:'merge',icon:'📣',label:'Campaign assets without consistent structure',children:[
+    {name:'[campaign folders]',change:'merge',icon:'📣',label:'Campaign-specific — use wcmCampaignName field instead'},
+  ]},
+  {id:'f-workfront',name:'workfront',change:'retain',icon:'⚙️',label:'Workfront connector staging [SYSTEM — do not restructure]'},
+  {id:'f-css',name:'_CSS',change:'retain',icon:'⚙️',label:'Dynamic Media CSS assets [SYSTEM]'},
+  {id:'f-dmsample',name:'_DMSAMPLE',change:'delete',icon:'🗑️',label:'Adobe sample assets — DELETE before migration'},
+];
+
+const PROPOSED_TREE = [
+  {id:'nf-brand',name:'brand',change:'new',icon:'™️',label:'Brand identity assets',children:[
+    {name:'logos',change:'new',icon:'🔵',label:'All logos (merged: /img/brand/logo, /img/brand/tp-logo)'},
+    {name:'icons',change:'new',icon:'⭐',label:'Brand icons & favicons (merged from /img/brand/icons, /securian/web-assets)'},
+    {name:'color-palettes',change:'new',icon:'🎨',label:'NEW — color palette assets (no legacy equivalent)'},
+    {name:'patterns',change:'new',icon:'◼️',label:'Brand pattern assets'},
+    {name:'avatars',change:'new',icon:'👤',label:'Avatar and profile image assets'},
+    {name:'email-signatures',change:'new',icon:'✉️',label:'Email signature assets (renamed from e-sig)'},
+    {name:'ads',change:'new',icon:'📣',label:'Advertising creative assets'},
+    {name:'app',change:'new',icon:'📱',label:'Mobile app assets'},
+    {name:'affiliates',change:'new',icon:'🤝',label:'Affiliate brand mark assets'},
+  ]},
+  {id:'nf-images',name:'images',change:'retain',icon:'🖼️',label:'All photography & digital images (primary image repository)',children:[
+    {name:'photography',change:'new',icon:'📸',label:'All photography (merged: /img/pic, /creative-assets/a-pic)',children:[
+      {name:'bio',change:'new',icon:'👤',label:'Biography and executive portraits'},
+      {name:'event',change:'new',icon:'📅',label:'Event photography'},
+      {name:'hero',change:'new',icon:'🏔️',label:'Hero photography (replaces hp/sp/mp/ip/ap audience codes — use dam:imageUse)'},
+      {name:'lifestyle',change:'new',icon:'🌿',label:'NEW — lifestyle photography'},
+      {name:'headshots',change:'new',icon:'🤳',label:'NEW — advisor and executive portrait management'},
+    ]},
+    {name:'digital-pages',change:'new',icon:'🖥️',label:'Digital page images (merged: /img/dp, /creative-assets/img/dp)',children:[
+      {name:'hero',change:'new',icon:'🏔️',label:'Page hero images'},
+      {name:'news',change:'new',icon:'📰',label:'News page images'},
+      {name:'content-groups',change:'new',icon:'📦',label:'Content block images'},
+      {name:'cta',change:'new',icon:'🔘',label:'Call-to-action images'},
+      {name:'infographic',change:'new',icon:'📊',label:'Infographics (merged: ig + /securian/supporting/infographic)'},
+      {name:'data-viz',change:'new',icon:'📈',label:'Data visualization (merged: dw + charts-and-graphs — ampersand removed)'},
+    ]},
+    {name:'email',change:'new',icon:'✉️',label:'Email images (merged: /img/email, /creative-assets/img/email)',children:[
+      {name:'hero',change:'new',icon:'🏔️',label:'Email hero images'},
+      {name:'cta',change:'new',icon:'🔘',label:'Email CTA images'},
+      {name:'bio',change:'new',icon:'👤',label:'Email biography images'},
+    ]},
+    {name:'social',change:'new',icon:'💬',label:'Social media images (merged from /img/social, /img/ca/social)'},
+    {name:'presentations',change:'new',icon:'📐',label:'Presentation image assets'},
+    {name:'icons',change:'new',icon:'⭐',label:'General icon assets (non-brand)'},
+  ]},
+  {id:'nf-video',name:'video',change:'new',icon:'📹',label:'All video content (merged: s-vid, video, creative-assets/video)',children:[
+    {name:'web',change:'new',icon:'🌐',label:'Web video (merged: s-vid + /video) — dam:audience replaces audience codes'},
+    {name:'creative',change:'new',icon:'🎬',label:'Creative/stock video (from /creative-assets)'},
+    {name:'closed-captions',change:'new',icon:'📝',label:'VTT and caption files (moved from /_VTT)'},
+    {name:'internal',change:'new',icon:'🔒',label:'Internal video content'},
+  ]},
+  {id:'nf-documents',name:'documents',change:'new',icon:'📄',label:'All marketing, regulatory & internal documents',children:[
+    {name:'marketing',change:'new',icon:'📣',label:'Marketing documents (merged: s-doc, doc, marketing-ops docs)'},
+    {name:'regulatory',change:'new',icon:'⚖️',label:'Regulatory filings (merged: s-reg + reg) — prospectus, performance, proxy'},
+    {name:'internal',change:'new',icon:'🔒',label:'Internal documents (split from /int + /i-doc)'},
+    {name:'compliance',change:'new',icon:'✅',label:'Compliance documents — distribution approval records'},
+  ]},
+  {id:'nf-forms',name:'forms',change:'new',icon:'📋',label:'All forms — marketing, internal & AEM Forms system output',children:[
+    {name:'marketing',change:'new',icon:'📣',label:'Marketing forms (merged: /form + /s-form) — dam:audience replaces codes'},
+    {name:'internal',change:'new',icon:'🔒',label:'Internal forms (split from /int)'},
+    {name:'aem-output',change:'system',icon:'⚙️',label:'AEM Forms system output [SYSTEM — formsanddocuments + themes]'},
+  ]},
+  {id:'nf-fragments',name:'fragments',change:'retain',icon:'🧩',label:'Content fragments — primary container (absorbs /s-frag)',children:[
+    {name:'contacts',change:'retain',icon:'👤',label:'Contact and advisor profile fragments'},
+    {name:'events',change:'new',icon:'📅',label:'Event content fragments'},
+    {name:'third-party-links',change:'new',icon:'🔗',label:'External link content fragments'},
+    {name:'video',change:'new',icon:'📹',label:'Video content fragments'},
+  ]},
+  {id:'nf-canada',name:'canada',change:'new',icon:'🍁',label:'NEW — Canadian market content (independent permissions & replication)',children:[
+    {name:'images',change:'new',icon:'🖼️',label:'Canadian market images (moved from /img/ca/)'},
+    {name:'video',change:'new',icon:'📹',label:'Canadian video content'},
+    {name:'documents',change:'new',icon:'📄',label:'Canadian market documents (FSRA/AMF compliance scope)'},
+  ]},
+  {id:'nf-highspot',name:'highspot',change:'new',icon:'🚀',label:'Assets flagged for Highspot sync via wcmHighspot metadata fields'},
+  {id:'nf-regulatory',name:'regulatory',change:'retain',icon:'⚖️',label:'Prospectus, performance reports, proxy statements, compliance filings'},
+  {id:'nf-workfront',name:'_system/workfront',change:'system',icon:'⚙️',label:'Workfront connector staging [SYSTEM — do not restructure]'},
+  {id:'nf-system',name:'_system',change:'new',icon:'⚙️',label:'All system-managed technical assets — isolated from authored content',children:[
+    {name:'css',change:'new',icon:'🎨',label:'Dynamic Media CSS (moved from /_CSS)'},
+    {name:'tech',change:'new',icon:'💻',label:'Technical/developer assets (moved from /tech)'},
+    {name:'workfront',change:'new',icon:'🔄',label:'Workfront connector staging (moved from /workfront)'},
+  ]},
+  {id:'nf-archive',name:'archive',change:'new',icon:'📦',label:'Retired assets for legal hold — Admin-only access, organized by year',children:[
+    {name:'[year]/',change:'new',icon:'📅',label:'Year-based archive buckets (e.g., archive/2022/, archive/2023/)'},
+  ]},
+];
+
+// ── RENDER HIERARCHY TREE ─────────────────────────────────────
+function renderHierarchyTree(containerId, treeData, isLegacy){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+
+  const changeLabel={merge:'MERGE',retain:'RETAIN',move:'MOVE',split:'SPLIT',delete:'DELETE',new:'NEW',system:'SYSTEM',review:'REVIEW','audience-sub':'AUDIENCE CODE','rename':'RENAME'};
+
+  function buildNode(node, depth){
+    const row = document.createElement('div');
+    row.className = 'ht-row';
+
+    const nodeEl = document.createElement('div');
+    nodeEl.className = `ht-node ${node.change||'system'} depth-${Math.min(depth,3)}`;
+
+    const hasChildren = node.children && node.children.length > 0;
+    const clickId = node.id||(isLegacy?'f-':'nf-')+node.name.replace(/[^a-z0-9]/gi,'');
+
+    nodeEl.innerHTML = `
+      <span class="ht-node-icon">${node.icon||'📁'}</span>
+      <span class="ht-node-name" title="${node.label||''}">/${node.name}</span>
+      <span class="ht-node-badge">${changeLabel[node.change]||node.change||''}</span>
+      ${hasChildren?'<span class="ht-node-toggle">▾</span>':''}
+    `;
+
+    if(node.id){
+      nodeEl.onclick = (e)=>{ e.stopPropagation(); openFolderDetail(node.id); nodeEl.classList.add('selected'); setTimeout(()=>nodeEl.classList.remove('selected'),1200); };
+    }
+
+    row.appendChild(nodeEl);
+
+    if(hasChildren){
+      const childWrap = document.createElement('div');
+      childWrap.className = 'ht-level ht-children';
+      node.children.forEach(child => childWrap.appendChild(buildNode(child, depth+1)));
+      row.appendChild(childWrap);
+
+      // Toggle expand/collapse
+      nodeEl.querySelector('.ht-node-toggle').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const isCollapsed = childWrap.classList.contains('collapsed');
+        childWrap.classList.toggle('collapsed', !isCollapsed);
+        nodeEl.querySelector('.ht-node-toggle').textContent = isCollapsed ? '▾' : '▸';
+      });
+    }
+    return row;
+  }
+
+  treeData.forEach(node => container.appendChild(buildNode(node, 1)));
+}
+
+// ── BOOT (replacement) ────────────────────────────────────────
+function renderFolderMindMap(){
+  renderHierarchyTree('legacy-tree-root', LEGACY_TREE, true);
+  renderHierarchyTree('proposed-tree-root', PROPOSED_TREE, false);
+}
+
+// ── BOOT ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderFolderTable();
+  renderMetaTabs();
+  renderTagTree('legacy-tag-tree', TAG_NAMESPACES, true);
+  renderNewTagTree();
+  renderDQGrid();
+  renderRoles();
+  renderFolderMindMap();
+});
+</script>
+</body>
+</html>
